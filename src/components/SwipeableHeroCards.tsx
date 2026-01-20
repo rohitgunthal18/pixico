@@ -60,12 +60,12 @@ export default function SwipeableHeroCards() {
                 .limit(20); // Fetch more to filter by aspect ratio
 
             if (!error && data && data.length > 0) {
-                const formattedPrompts = data.map((p: any) => ({
+                const formattedPrompts = (data as any[]).map((p) => ({
                     id: p.id,
                     title: p.title,
                     slug: p.slug,
                     image_url: p.image_url || "https://picsum.photos/seed/default/300/400",
-                    category: p.category?.name || "Uncategorized",
+                    category: (p.category as any)?.name || "Uncategorized",
                 }));
 
                 // Filter out landscape images with low aspect ratio

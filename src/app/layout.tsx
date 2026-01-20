@@ -13,7 +13,7 @@ const inter = Inter({
 
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://pixico.io'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://pixico-w3us.vercel.app'),
   title: {
     default: "Pixico - #1 Gemini Prompt Copy Paste Library | Free AI Photo Prompts",
     template: "%s | Pixico AI Prompts",
@@ -264,7 +264,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://pixico.io",
+    url: "https://pixico-w3us.vercel.app",
     siteName: "Pixico",
     title: "Pixico - Free AI Prompt Library & Generator",
     description:
@@ -303,42 +303,42 @@ const siteNavigationSchema = {
       "position": 1,
       "name": "Pixico AI Generator",
       "description": "Free AI chatbot for generating custom prompts",
-      "url": "https://pixico.io/generate"
+      "url": "https://pixico-w3us.vercel.app/generate"
     },
     {
       "@type": "SiteNavigationElement",
       "position": 2,
       "name": "Browse All Prompts",
       "description": "Explore 1000+ AI image and video prompts",
-      "url": "https://pixico.io/prompts"
+      "url": "https://pixico-w3us.vercel.app/prompts"
     },
     {
       "@type": "SiteNavigationElement",
       "position": 3,
       "name": "Blog & Tutorials",
       "description": "Learn AI prompt engineering and tips",
-      "url": "https://pixico.io/blog"
+      "url": "https://pixico-w3us.vercel.app/blog"
     },
     {
       "@type": "SiteNavigationElement",
       "position": 4,
       "name": "FAQ",
       "description": "Frequently asked questions about AI prompts",
-      "url": "https://pixico.io/faq"
+      "url": "https://pixico-w3us.vercel.app/faq"
     },
     {
       "@type": "SiteNavigationElement",
       "position": 5,
       "name": "About Pixico",
       "description": "Learn about our AI prompt library platform",
-      "url": "https://pixico.io/about"
+      "url": "https://pixico-w3us.vercel.app/about"
     },
     {
       "@type": "SiteNavigationElement",
       "position": 6,
       "name": "Contact Us",
       "description": "Get in touch with the Pixico team",
-      "url": "https://pixico.io/contact"
+      "url": "https://pixico-w3us.vercel.app/contact"
     }
   ]
 };
@@ -347,8 +347,8 @@ const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "Pixico",
-  "url": "https://pixico.io",
-  "logo": "https://pixico.io/icon.svg",
+  "url": "https://pixico-w3us.vercel.app",
+  "logo": "https://pixico-w3us.vercel.app/icon.svg",
   "description": "Free Gemini prompt copy paste library with 1000+ trending AI photo prompts for image and video generation",
   "sameAs": [
     "https://twitter.com/pixico",
@@ -359,7 +359,7 @@ const organizationSchema = {
   "contactPoint": {
     "@type": "ContactPoint",
     "contactType": "customer service",
-    "url": "https://pixico.io/contact"
+    "url": "https://pixico-w3us.vercel.app/contact"
   }
 };
 

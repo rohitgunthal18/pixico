@@ -67,10 +67,10 @@ export default async function Page({ params }: Props) {
         .eq("id", data.id)
         .single();
 
-    // Breadcrumb schema
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://pixico-w3us.vercel.app';
     const breadcrumbSchema = generateBreadcrumbSchema([
-        { name: "Home", url: "https://pixico.io" },
-        { name: "Blog", url: "https://pixico.io/blog" },
+        { name: "Home", url: baseUrl },
+        { name: "Blog", url: `${baseUrl}/blog` },
         { name: blog?.title || "Article", url: "" }
     ]);
 
@@ -91,7 +91,7 @@ export default async function Page({ params }: Props) {
             "name": "Pixico",
             "logo": {
                 "@type": "ImageObject",
-                "url": "https://pixico.io/icon.svg"
+                "url": `${baseUrl}/icon.svg`
             }
         }
     };

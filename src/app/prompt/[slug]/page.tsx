@@ -76,10 +76,10 @@ export default async function Page({ params }: Props) {
         ? Math.min(5, Math.max(1, (prompt.like_count / Math.max(prompt.view_count, 1)) * 100))
         : 4.5;
 
-    // Breadcrumb schema
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://pixico-w3us.vercel.app';
     const breadcrumbSchema = generateBreadcrumbSchema([
-        { name: "Home", url: "https://pixico.io" },
-        { name: (prompt?.category as any)?.name || "Prompts", url: `https://pixico.io/category/${(prompt?.category as any)?.slug || 'all'}` },
+        { name: "Home", url: baseUrl },
+        { name: (prompt?.category as any)?.name || "Prompts", url: `${baseUrl}/category/${(prompt?.category as any)?.slug || 'all'}` },
         { name: prompt?.title || "Prompt", url: "" }
     ]);
 

@@ -1,0 +1,13 @@
+<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="28" height="28" fill="url(#logoGrad)" />
+    <path d="M7 7H13V13H7V7Z" fill="white" fillOpacity="0.9" />
+    <path d="M15 7H21V13H15V7Z" fill="white" fillOpacity="0.6" />
+    <path d="M7 15H13V21H7V15Z" fill="white" fillOpacity="0.6" />
+    <path d="M15 15H21V21H15V15Z" fill="white" fillOpacity="0.3" />
+    <defs>
+        <linearGradient id="logoGrad" x1="0" y1="0" x2="28" y2="28">
+            <stop stopColor="#a855f7" />
+            <stop offset="1" stopColor="#06b6d4" />
+        </linearGradient>
+    </defs>
+</svg>

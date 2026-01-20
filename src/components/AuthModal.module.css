@@ -1,0 +1,612 @@
+/* AuthModal - Following Pixico Square Edge Design System */
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: var(--space-md);
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.modal {
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    width: 100%;
+    max-width: 400px;
+    padding: var(--space-lg);
+    position: relative;
+    box-shadow: var(--shadow-card);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.closeBtn {
+    position: absolute;
+    top: var(--space-md);
+    right: var(--space-md);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.closeBtn:hover {
+    background: var(--glass-hover);
+    color: var(--text-primary);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: var(--space-md);
+}
+
+.logo {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-md);
+}
+
+.logoIcon {
+    width: 28px;
+    height: 28px;
+    color: var(--gradient-purple);
+}
+
+.title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-xs) 0;
+}
+
+.subtitle {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.error {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+    padding: var(--space-sm) var(--space-md);
+    font-size: 0.85rem;
+    margin-bottom: var(--space-md);
+}
+
+.success {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #4ade80;
+    padding: var(--space-sm) var(--space-md);
+    font-size: 0.85rem;
+    margin-bottom: var(--space-md);
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.googleBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    width: 100%;
+    padding: var(--space-md);
+    background: #fff;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #1a1a1a;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.googleBtn:hover:not(:disabled) {
+    background: #f5f5f5;
+    transform: translateY(-1px);
+}
+
+.googleBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.googleIcon {
+    width: 20px;
+    height: 20px;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin: var(--space-sm) 0;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--glass-border);
+}
+
+.divider span {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.emailBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    width: 100%;
+    padding: var(--space-md);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.emailBtn:hover:not(:disabled) {
+    background: var(--glass-hover);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.emailBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Primary Button - Continue with Email */
+.primaryBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    width: 100%;
+    padding: var(--space-md);
+    background: var(--gradient-primary);
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.primaryBtn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 30px rgba(168, 85, 247, 0.4);
+}
+
+.primaryBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Secondary Button - Create Account */
+.secondaryBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    width: 100%;
+    padding: var(--space-md);
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.secondaryBtn:hover:not(:disabled) {
+    background: var(--glass-bg);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.secondaryBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Password Input with Toggle */
+.passwordInput {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.passwordInput input {
+    width: 100%;
+    padding-right: 48px;
+}
+
+.togglePassword {
+    position: absolute;
+    right: var(--space-sm);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: var(--space-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color var(--transition-fast);
+}
+
+.togglePassword:hover {
+    color: var(--text-primary);
+}
+
+/* Forgot Password Link */
+.forgotLink {
+    background: none;
+    border: none;
+    color: var(--gradient-purple);
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0;
+    text-align: right;
+    margin-top: calc(-1 * var(--space-xs));
+    transition: opacity var(--transition-fast);
+}
+
+.forgotLink:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+/* Switch Mode (Don't have an account? Sign Up) */
+.switchMode {
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.switchMode button {
+    background: none;
+    border: none;
+    color: var(--gradient-purple);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+    margin-left: var(--space-xs);
+    transition: opacity var(--transition-fast);
+}
+
+.switchMode button:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.inputGroup label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.inputGroup input {
+    width: 100%;
+    padding: var(--space-md);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--glass-border);
+    font-size: 1rem;
+    color: var(--text-primary);
+    transition: border-color var(--transition-fast);
+}
+
+.inputGroup input::placeholder {
+    color: var(--text-muted);
+}
+
+.inputGroup input:focus {
+    outline: none;
+    border-color: var(--gradient-purple);
+}
+
+.otpBoxes {
+    display: flex;
+    gap: var(--space-sm);
+    justify-content: center;
+}
+
+.otpBox {
+    width: 48px;
+    height: 56px;
+    padding: 0;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--glass-border);
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+    color: var(--text-primary);
+    text-align: center;
+    transition: border-color var(--transition-fast);
+}
+
+.otpBox:focus {
+    outline: none;
+    border-color: var(--gradient-purple);
+}
+
+.otpBox::placeholder {
+    color: var(--text-muted);
+}
+
+.submitBtn {
+    width: 100%;
+    padding: var(--space-md);
+    background: var(--gradient-primary);
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+}
+
+.submitBtn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 30px rgba(168, 85, 247, 0.4);
+}
+
+.submitBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.backBtn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    cursor: pointer;
+    padding: var(--space-sm);
+    transition: color var(--transition-fast);
+}
+
+.backBtn:hover {
+    color: var(--text-primary);
+}
+
+.resendBtn {
+    background: none;
+    border: none;
+    color: var(--gradient-purple);
+    font-size: 0.875rem;
+    cursor: pointer;
+    padding: var(--space-sm);
+    transition: all var(--transition-fast);
+}
+
+.resendBtn:hover:not(:disabled) {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+.resendBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.terms {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: var(--space-lg);
+    line-height: 1.5;
+}
+
+.terms a {
+    color: var(--text-secondary);
+    text-decoration: underline;
+    transition: color var(--transition-fast);
+}
+
+.terms a:hover {
+    color: var(--gradient-purple);
+}
+
+/* Mobile adjustments for a more compact and readable look */
+@media (max-width: 480px) {
+    .modal {
+        padding: 1.25rem;
+        max-width: 92%;
+    }
+
+    .closeBtn {
+        width: 32px;
+        height: 32px;
+        top: 0.75rem;
+        right: 0.75rem;
+    }
+
+    .logo {
+        font-size: 1.15rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .logoIcon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .title {
+        font-size: 1.15rem;
+    }
+
+    .subtitle {
+        font-size: 0.75rem;
+    }
+
+    .content {
+        gap: 0.875rem;
+    }
+
+    .googleBtn,
+    .primaryBtn,
+    .secondaryBtn,
+    .submitBtn {
+        padding: 0.75rem;
+        font-size: 0.85rem; white-space: nowrap;
+    }
+
+    .inputGroup {
+        gap: 0.35rem;
+    }
+
+    .inputGroup label {
+        font-size: 0.75rem;
+    }
+
+    .inputGroup input {
+        padding: 0.75rem;
+        font-size: 16px;
+        /* Keep at 16px for iOS */
+    }
+
+    .otpBox {
+        width: 40px;
+        height: 48px;
+        font-size: 1.25rem;
+    }
+
+    .contextBanner {
+        padding: 0.75rem;
+        font-size: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .contextBanner svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .terms {
+        font-size: 0.7rem;
+        margin-top: 1rem;
+    }
+}
+
+/* Context Banner - For custom messages when triggered from specific contexts */
+.contextBanner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%);
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    color: var(--text-primary);
+    padding: var(--space-md);
+    font-size: 0.85rem; white-space: nowrap;
+    font-weight: 500;
+    margin-bottom: var(--space-md);
+}
+
+.contextBanner svg {
+    color: var(--gradient-purple);
+    flex-shrink: 0;
+}
+.successWrapper {
+    text-align: center;
+    padding: var(--space-lg) 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    animation: fadeIn 0.3s ease;
+}
+
+.successWrapper p {
+    margin: 0;
+    font-style: italic;
+    opacity: 0.8;
+}

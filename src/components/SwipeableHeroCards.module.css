@@ -1,0 +1,463 @@
+/* Container matching Hero.module.css */
+.cardsContainer {
+    position: relative;
+    width: 480px;
+    height: 480px;
+    perspective: 1000px;
+    touch-action: pan-y;
+    /* Optimize for touch */
+}
+
+/* Card base styles */
+.card {
+    position: absolute;
+    width: 220px;
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-card);
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+}
+
+.card:active {
+    cursor: grabbing;
+}
+
+/* Card positioning (default desktop) */
+.cardTop {
+    left: 0;
+    top: 60px;
+    z-index: 3;
+    transform: rotate(-5deg);
+}
+
+.cardMiddle {
+    left: 130px;
+    top: 0;
+    z-index: 2;
+    transform: rotate(0deg);
+    pointer-events: none;
+}
+
+.cardBottom {
+    left: 260px;
+    top: 70px;
+    z-index: 1;
+    transform: rotate(5deg);
+    pointer-events: none;
+}
+
+/* 4th card - hidden below, preloaded */
+.cardHidden {
+    left: 260px;
+    top: 150px;
+    z-index: 0;
+    transform: rotate(5deg) scale(0.95);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.card:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.cardTop:hover {
+    transform: rotate(-5deg) scale(1.02);
+}
+
+/* Card image */
+.cardImage {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Card overlay */
+.cardOverlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--space-sm) var(--space-md);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+}
+
+.cardCategory {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* =====================
+   SWIPE ANIMATIONS
+   ===================== */
+
+/* Swipe left animation */
+@keyframes swipeExitLeft {
+    0% {
+        transform: translateX(0) rotate(-5deg);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(-150%) rotate(-25deg);
+        opacity: 0;
+    }
+}
+
+.swipeLeft {
+    animation: swipeExitLeft 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    pointer-events: none;
+}
+
+/* Swipe right animation */
+@keyframes swipeExitRight {
+    0% {
+        transform: translateX(0) rotate(-5deg);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(150%) rotate(25deg);
+        opacity: 0;
+    }
+}
+
+.swipeRight {
+    animation: swipeExitRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    pointer-events: none;
+}
+
+/* Middle card moves to top - ULTRA SMOOTH */
+@keyframes slideToTop {
+    from {
+        left: 130px;
+        top: 0;
+        z-index: 2;
+        transform: rotate(0deg);
+    }
+
+    to {
+        left: 0;
+        top: 60px;
+        z-index: 3;
+        transform: rotate(-5deg);
+    }
+}
+
+.moveToTop {
+    animation: slideToTop 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    pointer-events: all;
+    cursor: grab;
+}
+
+/* Bottom card moves to middle - ULTRA SMOOTH */
+@keyframes slideToMiddle {
+    from {
+        left: 260px;
+        top: 70px;
+        z-index: 1;
+        transform: rotate(5deg);
+    }
+
+    to {
+        left: 130px;
+        top: 0;
+        z-index: 2;
+        transform: rotate(0deg);
+    }
+}
+
+.moveToMiddle {
+    animation: slideToMiddle 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+/* 4th hidden card moves to bottom - ULTRA SMOOTH */
+@keyframes moveToBottom {
+    from {
+        left: 260px;
+        top: 150px;
+        z-index: 0;
+        transform: rotate(5deg) scale(0.95);
+        opacity: 0;
+    }
+
+    to {
+        left: 260px;
+        top: 70px;
+        z-index: 1;
+        transform: rotate(5deg) scale(1);
+        opacity: 1;
+    }
+}
+
+.moveToBottom {
+    animation: moveToBottom 0.7s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+/* Smooth fade-in for new 4th hidden card (prevents blink) */
+@keyframes fadeInHidden {
+    0% {
+        opacity: 0;
+        transform: rotate(5deg) scale(0.9);
+    }
+
+    100% {
+        opacity: 0;
+        transform: rotate(5deg) scale(0.95);
+    }
+}
+
+.fadeInHidden {
+    animation: fadeInHidden 0.7s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+/* =====================
+   RESPONSIVE - TABLET
+   ===================== */
+@media (max-width: 1200px) {
+    .cardsContainer {
+        width: 400px;
+        height: 400px;
+    }
+
+    .card {
+        width: 180px;
+    }
+
+    .cardTop {
+        left: 0;
+        top: 50px;
+    }
+
+    .cardMiddle {
+        left: 110px;
+        top: 0;
+    }
+
+    .cardBottom {
+        left: 220px;
+        top: 60px;
+    }
+
+    .cardHidden {
+        left: 220px;
+        top: 130px;
+    }
+
+    @keyframes slideToTop {
+        from {
+            left: 110px;
+            top: 0;
+        }
+
+        to {
+            left: 0;
+            top: 50px;
+            transform: rotate(-5deg);
+        }
+    }
+
+    @keyframes slideToMiddle {
+        from {
+            left: 220px;
+            top: 60px;
+        }
+
+        to {
+            left: 110px;
+            top: 0;
+            transform: rotate(0deg);
+        }
+    }
+}
+
+@media (max-width: 1024px) {
+    .cardsContainer {
+        width: 340px;
+        height: 350px;
+    }
+
+    .card {
+        width: 160px;
+    }
+
+    .cardTop {
+        left: 0;
+        top: 40px;
+    }
+
+    .cardMiddle {
+        left: 90px;
+        top: 0;
+    }
+
+    .cardBottom {
+        left: 180px;
+        top: 50px;
+    }
+
+    .cardHidden {
+        left: 180px;
+        top: 110px;
+    }
+
+    @keyframes slideToTop {
+        from {
+            left: 90px;
+            top: 0;
+        }
+
+        to {
+            left: 0;
+            top: 40px;
+            transform: rotate(-5deg);
+        }
+    }
+
+    @keyframes slideToMiddle {
+        from {
+            left: 180px;
+            top: 50px;
+        }
+
+        to {
+            left: 90px;
+            top: 0;
+            transform: rotate(0deg);
+        }
+    }
+}
+
+/* =====================
+   RESPONSIVE - MOBILE
+   ===================== */
+@media (max-width: 768px) {
+    .cardsContainer {
+        width: 360px;
+        height: 280px;
+    }
+
+    .card {
+        width: 160px;
+    }
+
+    .cardTop {
+        left: 0;
+        top: 35px;
+        transform: rotate(-4deg);
+    }
+
+    .cardMiddle {
+        left: 100px;
+        top: 0;
+    }
+
+    .cardBottom {
+        left: 200px;
+        top: 40px;
+        transform: rotate(4deg);
+    }
+
+    .cardHidden {
+        left: 200px;
+        top: 90px;
+        transform: rotate(4deg) scale(0.95);
+    }
+
+    .cardOverlay {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .cardCategory {
+        font-size: 0.65rem;
+    }
+
+    @keyframes slideToTop {
+        from {
+            left: 100px;
+            top: 0;
+        }
+
+        to {
+            left: 0;
+            top: 35px;
+            transform: rotate(-4deg);
+        }
+    }
+
+    @keyframes slideToMiddle {
+        from {
+            left: 200px;
+            top: 40px;
+        }
+
+        to {
+            left: 100px;
+            top: 0;
+            transform: rotate(0deg);
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .cardsContainer {
+        width: 260px;
+        height: 180px;
+    }
+
+    .card {
+        width: 115px;
+    }
+
+    .cardTop {
+        left: 0;
+        top: 15px;
+    }
+
+    .cardMiddle {
+        left: 72px;
+        top: 0;
+    }
+
+    .cardBottom {
+        left: 145px;
+        top: 20px;
+    }
+
+    .cardHidden {
+        left: 145px;
+        top: 60px;
+    }
+
+    @keyframes slideToTop {
+        from {
+            left: 72px;
+            top: 0;
+        }
+
+        to {
+            left: 0;
+            top: 15px;
+            transform: rotate(-4deg);
+        }
+    }
+
+    @keyframes slideToMiddle {
+        from {
+            left: 145px;
+            top: 20px;
+        }
+
+        to {
+            left: 72px;
+            top: 0;
+            transform: rotate(0deg);
+        }
+    }
+}

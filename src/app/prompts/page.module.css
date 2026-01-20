@@ -1,0 +1,33 @@
+.main {
+    min-height: 100vh;
+    padding-bottom: var(--space-xl);
+}
+
+.pageHeader {
+    padding: var(--space-xl) 0 0;
+    text-align: left;
+}
+
+.pageTitle {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0;
+    letter-spacing: -0.02em;
+}
+
+.pageSubtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+}
+
+@media (max-width: 600px) {
+    .pageHeader {
+        padding: var(--space-lg) 0 0;
+    }
+
+    .pageTitle {
+        font-size: 1.35rem;
+    }
+}

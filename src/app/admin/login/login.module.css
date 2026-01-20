@@ -1,0 +1,130 @@
+/* Admin Login - Following Pixico Square Edge Design System */
+
+.container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-primary);
+    padding: var(--space-lg);
+}
+
+.loginCard {
+    width: 100%;
+    max-width: 400px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    padding: var(--space-2xl);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+}
+
+.logo h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.subtitle {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0 0 var(--space-xl) 0;
+}
+
+.error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+    margin-bottom: var(--space-lg);
+    font-size: 0.875rem;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.field label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.field input {
+    width: 100%;
+    padding: var(--space-md);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border-color var(--transition-base);
+}
+
+.field input:focus {
+    outline: none;
+    border-color: var(--gradient-purple);
+}
+
+.field input::placeholder {
+    color: var(--text-muted);
+}
+
+.submitBtn {
+    width: 100%;
+    padding: var(--space-md);
+    background: var(--gradient-primary);
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    margin-top: var(--space-sm);
+}
+
+.submitBtn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 30px rgba(168, 85, 247, 0.4);
+}
+
+.submitBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.footer {
+    margin-top: var(--space-xl);
+    text-align: center;
+}
+
+.backLink {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color var(--transition-base);
+}
+
+.backLink:hover {
+    color: var(--gradient-purple);
+}

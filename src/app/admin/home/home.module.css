@@ -1,0 +1,294 @@
+/* Admin Dashboard - Following Pixico Square Edge Design System */
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--glass-border);
+    border-top-color: var(--gradient-purple);
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.dashboard {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.header {
+    margin-bottom: var(--space-xl);
+}
+
+.header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-sm) 0;
+}
+
+.header p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Stats Grid */
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+}
+
+.statCard {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    transition: all var(--transition-base);
+}
+
+.statCard:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.statIcon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.statInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.statValue {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.statLabel {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Quick Actions */
+.quickActions {
+    display: flex;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+    flex-wrap: wrap;
+}
+
+.actionBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-lg);
+    background: var(--gradient-primary);
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.actionBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 30px rgba(168, 85, 247, 0.4);
+}
+
+.actionBtnSecondary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-lg);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.actionBtnSecondary:hover {
+    background: var(--glass-hover);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Activity Grid */
+.activityGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
+}
+
+.activityCard {
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    overflow: hidden;
+}
+
+.activityHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.activityHeader h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.viewAll {
+    font-size: 0.8rem;
+    color: var(--gradient-purple);
+    text-decoration: none;
+    transition: opacity var(--transition-fast);
+}
+
+.viewAll:hover {
+    opacity: 0.8;
+}
+
+.activityList {
+    padding: var(--space-sm);
+}
+
+.activityItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--space-md);
+    transition: background var(--transition-fast);
+}
+
+.activityItem:hover {
+    background: var(--glass-bg);
+}
+
+.activityInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+}
+
+.activityTitle {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.activityMeta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.editLink {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: var(--space-xs) var(--space-sm);
+    transition: all var(--transition-fast);
+}
+
+.editLink:hover {
+    color: var(--gradient-purple);
+    background: rgba(168, 85, 247, 0.1);
+}
+
+.empty {
+    padding: var(--space-xl);
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+/* Status Badges */
+.statusBadge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.15rem 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.statusBadge.new {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+}
+
+.statusBadge.read {
+    background: rgba(6, 182, 212, 0.15);
+    color: #06b6d4;
+}
+
+.statusBadge.replied {
+    background: rgba(168, 85, 247, 0.15);
+    color: #a855f7;
+}
+
+.statusBadge.resolved {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .activityGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .statsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .quickActions {
+        flex-direction: column;
+    }
+
+    .actionBtn,
+    .actionBtnSecondary {
+        justify-content: center;
+    }
+}

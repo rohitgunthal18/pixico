@@ -1,0 +1,542 @@
+/* User Profile Page - Mobile-Friendly Design */
+/* Following Pixico Square Edge Design System */
+
+/* ============================================
+   LOADING STATE
+   ============================================ */
+.main {
+    min-height: 100vh;
+    padding-top: var(--header-height);
+}
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--glass-border);
+    border-top-color: var(--gradient-purple);
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+   CONTENT CONTAINER
+   ============================================ */
+.content {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: var(--space-xl) var(--space-lg) var(--space-3xl);
+}
+
+/* ============================================
+   PROFILE HEADER - Enhanced for Mobile
+   ============================================ */
+.profileHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xl);
+    padding: var(--space-xl);
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    margin-bottom: var(--space-xl);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle gradient accent */
+.profileHeader::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-primary);
+}
+
+.avatar {
+    width: 100px;
+    height: 100px;
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Subtle glow effect on avatar */
+.avatar::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: var(--gradient-primary);
+    opacity: 0.3;
+    z-index: -1;
+    filter: blur(8px);
+}
+
+.avatarImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatarInitial {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.userInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.userName {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-xs) 0;
+    word-break: break-word;
+}
+
+.userEmail {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0 0 var(--space-sm) 0;
+    word-break: break-all;
+}
+
+.userStats {
+    display: flex;
+    gap: var(--space-lg);
+    flex-wrap: wrap;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.stat svg {
+    color: var(--gradient-purple);
+}
+
+.stat strong {
+    color: var(--text-primary);
+}
+
+.signOutBtn {
+    padding: var(--space-sm) var(--space-lg);
+    background: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #ef4444;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    white-space: nowrap;
+}
+
+.signOutBtn:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* ============================================
+   TABS - Improved Mobile Scrolling
+   ============================================ */
+.tabs {
+    display: flex;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--glass-border);
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.tab {
+    padding: var(--space-md) var(--space-lg);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.tab:hover {
+    color: var(--text-primary);
+}
+
+.tab.active {
+    color: var(--text-primary);
+}
+
+.tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gradient-primary);
+}
+
+/* ============================================
+   PROMPTS GRID - Mobile Optimized
+   ============================================ */
+.promptsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-lg);
+}
+
+/* ============================================
+   PROMPT CARD - Enhanced
+   ============================================ */
+.promptCard {
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    overflow: hidden;
+    position: relative;
+    transition: all var(--transition-base);
+}
+
+.promptCard:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.promptCard a {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+.promptImage {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+}
+
+.promptCard:hover .promptImage {
+    transform: scale(1.02);
+}
+
+.promptImagePlaceholder {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: var(--glass-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+}
+
+.promptInfo {
+    padding: var(--space-md);
+}
+
+.promptTitle {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-xs) 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+}
+
+.promptMeta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.promptCategory {
+    padding: var(--space-xs) var(--space-sm);
+    background: var(--glass-bg);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   PROMPT ACTIONS - Touch Friendly
+   ============================================ */
+.promptActions {
+    position: absolute;
+    top: var(--space-sm);
+    right: var(--space-sm);
+    display: flex;
+    gap: var(--space-sm);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.promptCard:hover .promptActions {
+    opacity: 1;
+}
+
+/* Always show on touch devices */
+@media (hover: none) {
+    .promptActions {
+        opacity: 1;
+    }
+}
+
+.actionBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.actionBtn:hover {
+    background: var(--glass-hover);
+    color: var(--text-primary);
+}
+
+.removeBtn:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+.empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-3xl) var(--space-xl);
+    text-align: center;
+    background: var(--glass-bg);
+    border: 1px dashed var(--glass-border);
+}
+
+.empty svg {
+    color: var(--text-muted);
+    margin-bottom: var(--space-md);
+}
+
+.empty h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-sm) 0;
+}
+
+.empty p {
+    color: var(--text-muted);
+    margin: 0 0 var(--space-lg) 0;
+}
+
+.browseBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-lg);
+    background: var(--gradient-primary);
+    border: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.browseBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 30px rgba(168, 85, 247, 0.4);
+}
+
+/* ============================================
+   RESPONSIVE - TABLET (768px)
+   ============================================ */
+@media (max-width: 768px) {
+    .content {
+        padding: var(--space-lg) var(--space-md) var(--space-2xl);
+    }
+
+    .profileHeader {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--space-lg);
+        padding: var(--space-lg);
+    }
+
+    .avatar {
+        width: 90px;
+        height: 90px;
+    }
+
+    .avatarInitial {
+        font-size: 2rem;
+    }
+
+    .userInfo {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .userName {
+        font-size: 1.25rem;
+    }
+
+    .userStats {
+        justify-content: center;
+    }
+
+    .signOutBtn {
+        width: 100%;
+        max-width: 200px;
+        justify-content: center;
+    }
+
+    .promptsGrid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: var(--space-md);
+    }
+}
+
+/* ============================================
+   RESPONSIVE - MOBILE (480px)
+   ============================================ */
+@media (max-width: 480px) {
+    .content {
+        padding: var(--space-md) var(--space-sm) var(--space-xl);
+    }
+
+    .profileHeader {
+        padding: var(--space-md);
+        margin-bottom: var(--space-lg);
+    }
+
+    .avatar {
+        width: 80px;
+        height: 80px;
+    }
+
+    .avatarInitial {
+        font-size: 1.75rem;
+    }
+
+    .userName {
+        font-size: 1.1rem;
+    }
+
+    .userEmail {
+        font-size: 0.85rem;
+    }
+
+    .signOutBtn {
+        padding: var(--space-sm) var(--space-md);
+        font-size: 0.8rem;
+    }
+
+    .tabs {
+        margin: 0 calc(-1 * var(--space-sm));
+        padding: 0 var(--space-sm);
+        margin-bottom: var(--space-md);
+    }
+
+    .tab {
+        padding: var(--space-sm) var(--space-md);
+        font-size: 0.85rem;
+    }
+
+    .promptsGrid {
+        grid-template-columns: 1fr;
+        gap: var(--space-md);
+    }
+
+    .promptCard {
+        margin: 0;
+    }
+
+    .promptInfo {
+        padding: var(--space-sm) var(--space-md);
+    }
+
+    .promptTitle {
+        font-size: 0.9rem;
+    }
+
+    .actionBtn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .empty {
+        padding: var(--space-2xl) var(--space-md);
+    }
+
+    .empty svg {
+        width: 40px;
+        height: 40px;
+    }
+
+    .empty h3 {
+        font-size: 1rem;
+    }
+
+    .empty p {
+        font-size: 0.9rem;
+    }
+}
+
+/* ============================================
+   SAFE AREA INSETS (Notched Phones)
+   ============================================ */
+@supports (padding: max(0px)) {
+    .content {
+        padding-left: max(var(--space-md), env(safe-area-inset-left));
+        padding-right: max(var(--space-md), env(safe-area-inset-right));
+    }
+}

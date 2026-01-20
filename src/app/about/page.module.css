@@ -1,0 +1,101 @@
+.main {
+    min-height: 100vh;
+    padding-bottom: var(--space-3xl);
+}
+
+.hero {
+    text-align: center;
+    padding: var(--space-2xl) 0 var(--space-xl);
+}
+
+.title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-sm) 0;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin: 0;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    padding: var(--space-xl);
+}
+
+.card h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-md) 0;
+}
+
+.card p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin: 0 0 var(--space-md) 0;
+}
+
+.card p:last-child {
+    margin-bottom: 0;
+}
+
+.card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.card li {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    padding-left: var(--space-lg);
+    position: relative;
+}
+
+.card li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--gradient-purple);
+}
+
+.card li strong {
+    color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+    .hero {
+        padding: var(--space-xl) 0 var(--space-lg);
+    }
+
+    .card {
+        padding: var(--space-lg);
+    }
+
+    .card h2 {
+        font-size: 1.1rem;
+    }
+}

@@ -1,0 +1,347 @@
+/* Blog Listing Page - Pixico Design System */
+
+.main {
+    min-height: 100vh;
+    padding-bottom: var(--space-2xl);
+}
+
+/* Hero */
+.hero {
+    text-align: center;
+    padding: var(--space-lg) 0 var(--space-xl);
+}
+
+.title {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-xs) 0;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.subtitle {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* Filters */
+.filters {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.searchBox {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    max-width: 280px;
+}
+
+.searchBox svg {
+    color: var(--text-muted);
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+}
+
+.searchBox input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    outline: none;
+    min-width: 120px;
+}
+
+.searchBox input::placeholder {
+    color: var(--text-muted);
+}
+
+/* Category Tabs - Horizontal Scroll Container */
+.categoryTabs {
+    display: flex;
+    gap: var(--space-xs);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--glass-border) transparent;
+    padding: 4px 0;
+    margin: 0 -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.categoryTabs::-webkit-scrollbar {
+    height: 4px;
+}
+
+.categoryTabs::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.categoryTabs::-webkit-scrollbar-thumb {
+    background: var(--glass-border);
+    border-radius: 2px;
+}
+
+.categoryTabs::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+.tab {
+    flex-shrink: 0;
+    padding: 0.5rem 1rem;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+}
+
+.tab:hover {
+    background: var(--glass-hover);
+    color: var(--text-primary);
+}
+
+.tab.active {
+    background: var(--gradient-primary);
+    border-color: transparent;
+    color: #fff;
+}
+
+/* Loading */
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2xl);
+    color: var(--text-muted);
+}
+
+.spinner {
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--glass-border);
+    border-top-color: var(--gradient-purple);
+    animation: spin 0.8s linear infinite;
+    margin-bottom: var(--space-sm);
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Empty State */
+.empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2xl);
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.empty svg {
+    margin-bottom: var(--space-md);
+    opacity: 0.5;
+}
+
+.empty h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-xs) 0;
+}
+
+.empty p {
+    margin: 0;
+    font-size: 0.85rem;
+}
+
+/* Grid */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-md);
+}
+
+/* Card */
+.card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    overflow: hidden;
+    text-decoration: none;
+    transition: all var(--transition-base);
+    display: flex;
+    flex-direction: column;
+}
+
+.card:hover {
+    border-color: rgba(168, 85, 247, 0.4);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.cardImage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: var(--bg-tertiary);
+    overflow: hidden;
+}
+
+.cardImage img {
+    transition: transform var(--transition-slow);
+}
+
+.card:hover .cardImage img {
+    transform: scale(1.05);
+}
+
+.imagePlaceholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: var(--text-muted);
+}
+
+.cardContent {
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    flex: 1;
+}
+
+.category {
+    display: inline-block;
+    width: fit-content;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gradient-purple);
+    background: rgba(168, 85, 247, 0.1);
+    padding: 0.15rem 0.4rem;
+}
+
+.cardTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.excerpt {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.cardMeta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--glass-border);
+}
+
+.date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.views {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.views svg {
+    width: 12px;
+    height: 12px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero {
+        padding: var(--space-md) 0;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .subtitle {
+        font-size: 0.8rem;
+    }
+
+    .searchBox {
+        max-width: 100%;
+    }
+
+    .categoryTabs {
+        margin: 0 -20px;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .tab {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-sm);
+    }
+
+    .cardContent {
+        padding: var(--space-sm);
+    }
+
+    .cardTitle {
+        font-size: 0.9rem;
+    }
+
+    .excerpt {
+        font-size: 0.8rem;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+    }
+}

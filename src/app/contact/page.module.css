@@ -1,0 +1,491 @@
+/* ============================================
+   CONTACT PAGE - PREMIUM DESIGN
+   ============================================ */
+
+.main {
+    min-height: 100vh;
+    padding-bottom: var(--space-3xl);
+}
+
+/* ============================================
+   HERO
+   ============================================ */
+.hero {
+    text-align: center;
+    padding: var(--space-2xl) 0 var(--space-xl);
+}
+
+.title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-sm) 0;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* ============================================
+   CONTENT GRID
+   ============================================ */
+.content {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: var(--space-xl);
+    max-width: 950px;
+    margin: 0 auto;
+}
+
+/* ============================================
+   INFO COLUMN
+   ============================================ */
+.infoColumn {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.infoCard {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    transition: border-color var(--transition-fast);
+}
+
+.infoCard:hover {
+    border-color: rgba(168, 85, 247, 0.3);
+}
+
+.infoIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%);
+    flex-shrink: 0;
+}
+
+.infoIcon svg {
+    color: var(--gradient-purple);
+}
+
+.infoCard h3 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-xs) 0;
+}
+
+.infoCard p,
+.infoCard a {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0;
+    text-decoration: none;
+    line-height: 1.5;
+}
+
+.infoCard a:hover {
+    color: var(--gradient-cyan);
+}
+
+/* ============================================
+   SOCIAL LINKS
+   ============================================ */
+.socialLinks {
+    display: flex;
+    gap: var(--space-sm);
+    padding-top: var(--space-sm);
+}
+
+.socialBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    transition: all var(--transition-fast);
+}
+
+.socialBtn:hover {
+    color: var(--text-primary);
+    border-color: rgba(168, 85, 247, 0.4);
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+}
+
+/* ============================================
+   FORM COLUMN
+   ============================================ */
+.formColumn {
+    min-width: 0;
+}
+
+.form {
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    padding: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.formTitle {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-xs) 0;
+}
+
+.errorMessage {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    font-size: 0.85rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+/* ============================================
+   FORM FIELDS
+   ============================================ */
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.field label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.field input,
+.field textarea {
+    padding: var(--space-sm) var(--space-md);
+    background: var(--bg-primary);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color var(--transition-fast);
+}
+
+.field input:focus,
+.field textarea:focus {
+    outline: none;
+    border-color: var(--gradient-purple);
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+    color: var(--text-muted);
+}
+
+/* ============================================
+   SUBMIT BUTTON
+   ============================================ */
+.submitBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: var(--space-md) var(--space-xl);
+    background: var(--gradient-primary);
+    border: none;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    margin-top: var(--space-xs);
+}
+
+.submitBtn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4);
+}
+
+.submitBtn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+   SUCCESS PANEL
+   ============================================ */
+.successPanel {
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    padding: var(--space-2xl);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.successIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%);
+    color: #22c55e;
+}
+
+.successPanel h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.successPanel p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin: 0;
+    max-width: 300px;
+}
+
+.successPanel p strong {
+    color: var(--gradient-cyan);
+}
+
+.newMsgBtn {
+    margin-top: var(--space-md);
+    padding: var(--space-sm) var(--space-lg);
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.newMsgBtn:hover {
+    color: var(--text-primary);
+    border-color: var(--gradient-purple);
+}
+
+/* ============================================
+   RESPONSIVE - TABLET
+   ============================================ */
+@media (max-width: 768px) {
+    .content {
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+    }
+
+    .infoColumn {
+        order: 1;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-sm);
+    }
+
+    /* Single column rectangular cards - matching desktop style */
+    .infoCard {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: var(--space-md);
+        padding: var(--space-md) var(--space-lg);
+    }
+
+    .infoIcon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .infoIcon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .infoCard h3 {
+        font-size: 0.8rem;
+        margin-bottom: 2px;
+    }
+
+    .infoCard p,
+    .infoCard a {
+        font-size: 0.8rem;
+    }
+
+    /* Center social links at the bottom */
+    .socialLinks {
+        justify-content: center;
+        padding-top: var(--space-sm);
+    }
+
+    .socialBtn {
+        width: 36px;
+        height: 36px;
+    }
+
+    .socialBtn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .formColumn {
+        order: 0;
+    }
+
+    .form {
+        padding: var(--space-lg);
+    }
+
+    .field input,
+    .field textarea {
+        padding: 0.8rem;
+        font-size: 16px;
+        /* Prevents iOS zoom */
+    }
+}
+
+/* ============================================
+   RESPONSIVE - MOBILE
+   ============================================ */
+@media (max-width: 480px) {
+    .hero {
+        padding: var(--space-lg) 0 var(--space-md);
+    }
+
+    .title {
+        font-size: 1.75rem;
+    }
+
+    .subtitle {
+        font-size: 0.9rem;
+    }
+
+    .content {
+        gap: var(--space-md);
+    }
+
+    .infoColumn {
+        gap: var(--space-xs);
+    }
+
+    /* Compact single-column rectangular cards for mobile */
+    .infoCard {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: var(--space-sm);
+        padding: var(--space-sm) var(--space-md);
+    }
+
+    .infoIcon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .infoIcon svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .infoCard h3 {
+        font-size: 0.75rem;
+        margin-bottom: 1px;
+    }
+
+    .infoCard p,
+    .infoCard a {
+        font-size: 0.75rem;
+        line-height: 1.4;
+    }
+
+    /* Centered social links */
+    .socialLinks {
+        justify-content: center;
+        gap: var(--space-sm);
+        padding-top: var(--space-xs);
+    }
+
+    .socialBtn {
+        width: 32px;
+        height: 32px;
+    }
+
+    .socialBtn svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    /* Compact form */
+    .form {
+        padding: var(--space-md);
+        gap: var(--space-sm);
+    }
+
+    .formTitle {
+        font-size: 1.1rem;
+    }
+
+    .submitBtn {
+        padding: var(--space-sm) var(--space-lg);
+        font-size: 0.85rem;
+    }
+
+    .successPanel {
+        padding: var(--space-lg);
+    }
+
+    .successIcon {
+        width: 56px;
+        height: 56px;
+    }
+
+    .successIcon svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    .successPanel h2 {
+        font-size: 1.15rem;
+    }
+
+    .successPanel p {
+        font-size: 0.85rem;
+    }
+}

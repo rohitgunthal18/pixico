@@ -48,28 +48,60 @@ export default async function Page({ params }: Props) {
     const { slug } = await params;
     const supabase = await createClient();
 
-    // Basic check for existence
-    const { data } = await supabase
-        .from("prompts")
-        .select("id")
-        .eq("slug", slug)
-        .eq("status", "published")
-        .single();
+    // Fetch everything in parallel
+    const [promptRes, relatedRes, headerCatsRes, footerCatsRes] = await Promise.all([
+        supabase
+            .from("prompts")
+            .select(`
+                id, slug, prompt_code, title, prompt_text, description, 
+                image_url, image_alt, like_count, view_count, save_count,
+                aspect_ratio, style, meta_title, meta_description, created_at, updated_at,
+                category:categories!category_id(id, name, slug),
+                ai_model:ai_models!model_id(id, name),
+                prompt_tags(tag:tags(id, name))
+            `)
+            .eq("slug", slug)
+            .eq("status", "published")
+            .single(),
+        supabase
+            .from("prompts")
+            .select("id, slug, title, image_url")
+            .eq("status", "published")
+            .neq("slug", slug)
+            .limit(4), // Fallback related prompts, will refine if cat exists
+        supabase
+            .from("categories")
+            .select("id, name, slug")
+            .eq("show_in_header", true)
+            .order("sort_order"),
+        supabase
+            .from("categories")
+            .select("id, name, slug")
+            .order("sort_order")
+    ]);
 
-    if (!data) {
+    const prompt = promptRes.data;
+    if (!prompt) {
         notFound();
     }
 
-    // Fetch full details for JSON-LD
-    const { data: prompt } = await supabase
-        .from("prompts")
-        .select(`
-            title, description, image_url, created_at, updated_at, like_count, view_count,
-            ai_model:ai_models(name), 
-            category:categories(name, slug)
-        `)
-        .eq("id", data.id)
-        .single();
+    const headerCategories = (headerCatsRes.data || []) as any[];
+    const footerCategories = (footerCatsRes.data || []) as any[];
+
+    // Refine related prompts by category if available
+    let relatedPrompts = relatedRes.data || [];
+    if ((prompt.category as any)?.id) {
+        const { data: catRelated } = await supabase
+            .from("prompts")
+            .select("id, slug, title, image_url")
+            .eq("category_id", prompt.category.id)
+            .eq("status", "published")
+            .neq("id", prompt.id)
+            .limit(4);
+        if (catRelated && catRelated.length > 0) {
+            relatedPrompts = catRelated;
+        }
+    }
 
     // Calculate rating from engagement metrics
     const ratingValue = prompt?.like_count && prompt?.view_count
@@ -109,9 +141,14 @@ export default async function Page({ params }: Props) {
 
     return (
         <>
-            <JsonLd data={breadcrumbSchema} />
-            <JsonLd data={jsonLd} />
-            <PromptClient />
+            <JsonLd key="breadcrumb-schema" data={breadcrumbSchema} />
+            <JsonLd key="prompt-schema" data={jsonLd} />
+            <PromptClient
+                initialPrompt={prompt as any}
+                initialRelatedPrompts={relatedPrompts || []}
+                headerCategories={headerCategories}
+                footerCategories={footerCategories}
+            />
         </>
     );
 }

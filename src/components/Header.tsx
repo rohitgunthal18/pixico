@@ -23,7 +23,11 @@ interface SearchResult {
     image_url?: string | null;
 }
 
-export default function Header() {
+interface HeaderProps {
+    initialCategories?: Category[];
+}
+
+export default function Header({ initialCategories }: HeaderProps) {
     const router = useRouter();
     const { user, profile, isLoading, isAdmin, signOut } = useAuth();
     const [searchQuery, setSearchQuery] = useState("");
@@ -31,7 +35,7 @@ export default function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [authModalOpen, setAuthModalOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
-    const [categories, setCategories] = useState<Category[]>([]);
+    const [categories, setCategories] = useState<Category[]>(initialCategories || []);
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
     const [showSearchDropdown, setShowSearchDropdown] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
@@ -40,8 +44,10 @@ export default function Header() {
     const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
-        fetchCategories();
-    }, []);
+        if (!initialCategories) {
+            fetchCategories();
+        }
+    }, [initialCategories]);
 
     // Prevent body scroll when mobile menu is open
     useEffect(() => {
@@ -174,7 +180,11 @@ export default function Header() {
     };
 
     const handleCategoryClick = (slug: string) => {
-        router.push(`/category/${slug}`);
+        if (slug === "all") {
+            router.push("/prompts");
+        } else {
+            router.push(`/category/${slug}`);
+        }
     };
 
     const scrollCategories = (direction: "left" | "right") => {

@@ -158,6 +158,7 @@ interface PromptGridProps {
     sectionType?: "featured" | "trending" | "category" | "all";
     categoryId?: string;
     id?: string;
+    initialPrompts?: any[];
 }
 
 export default function PromptGrid({
@@ -171,12 +172,30 @@ export default function PromptGrid({
     sectionType,
     categoryId,
     id,
+    initialPrompts,
 }: PromptGridProps) {
     const [activeCategory, setActiveCategory] = useState("All");
     const [activeModel, setActiveModel] = useState("All Models");
     const [sortBy, setSortBy] = useState("trending");
-    const [dbPrompts, setDbPrompts] = useState<typeof mockPrompts>([]);
-    const [isLoading, setIsLoading] = useState(true);
+
+    // Format initial prompts if provided
+    const formattedInitialPrompts = initialPrompts ? (initialPrompts as any[]).map(p => {
+        const cat = p.category as unknown as { name: string } | null;
+        const model = p.ai_model as unknown as { name: string } | null;
+        return {
+            id: p.id,
+            title: p.title,
+            category: cat?.name || "Uncategorized",
+            model: model?.name || "AI Model",
+            image: p.image_url || "https://picsum.photos/seed/default/400/500",
+            slug: p.slug,
+            likes: p.like_count || 0,
+            views: p.view_count || 0,
+        };
+    }) : [];
+
+    const [dbPrompts, setDbPrompts] = useState<any[]>(formattedInitialPrompts);
+    const [isLoading, setIsLoading] = useState(!initialPrompts);
     const [categories, setCategories] = useState<string[]>(["All"]);
     const [models, setModels] = useState<string[]>(["All Models"]);
 

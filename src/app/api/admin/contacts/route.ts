@@ -1,46 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/server';
+
+async function verifyAdmin() {
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+        return { authorized: false, error: 'Unauthorized' };
+    }
+
+    const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+    if (profileError || profile?.role !== 'admin') {
+        return { authorized: false, error: 'Forbidden: Admin access required' };
+    }
+
+    return { authorized: true, supabase };
+}
 
 // GET - Fetch all contact queries
 export async function GET(request: NextRequest) {
     try {
-        // Verify admin session from cookie/header
-        const adminSession = request.cookies.get('adminSession')?.value;
-
-        // For now, we'll trust the request since admin layout validates session
-        // In production, you'd want to verify the admin session here
-
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-        if (!supabaseServiceKey) {
-            // Fallback to anon key if no service key
-            const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-            const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-            const { data, error } = await supabase
-                .from('contact_queries')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-            }
-
-            return NextResponse.json({ success: true, data });
+        const { authorized, error, supabase } = await verifyAdmin();
+        if (!authorized || !supabase) {
+            return NextResponse.json({ success: false, error }, { status: authorized === false && error === 'Unauthorized' ? 401 : 403 });
         }
 
-        // Use service role key to bypass RLS
-        const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-        const { data, error } = await supabase
+        const { data, error: dbError } = await supabase
             .from('contact_queries')
             .select('*')
             .order('created_at', { ascending: false });
 
-        if (error) {
-            console.error('Error fetching contacts:', error);
-            return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+        if (dbError) {
+            return NextResponse.json({ success: false, error: dbError.message }, { status: 500 });
         }
 
         return NextResponse.json({ success: true, data });
@@ -53,29 +49,30 @@ export async function GET(request: NextRequest) {
 // PATCH - Update contact status or notes
 export async function PATCH(request: NextRequest) {
     try {
+        const { authorized, error, supabase } = await verifyAdmin();
+        if (!authorized || !supabase) {
+            return NextResponse.json({ success: false, error }, { status: authorized === false && error === 'Unauthorized' ? 401 : 403 });
+        }
+
         const { id, status, admin_notes, replied_at } = await request.json();
 
         if (!id) {
             return NextResponse.json({ success: false, error: 'Contact ID required' }, { status: 400 });
         }
 
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-        const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
         const updateData: any = {};
         if (status !== undefined) updateData.status = status;
         if (admin_notes !== undefined) updateData.admin_notes = admin_notes;
         if (replied_at !== undefined) updateData.replied_at = replied_at;
 
-        const { error } = await supabase
+        const { error: dbError } = await supabase
             .from('contact_queries')
             .update(updateData)
             .eq('id', id);
 
-        if (error) {
-            console.error('Error updating contact:', error);
-            return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+        if (dbError) {
+            console.error('Error updating contact:', dbError);
+            return NextResponse.json({ success: false, error: dbError.message }, { status: 500 });
         }
 
         return NextResponse.json({ success: true });
@@ -88,6 +85,11 @@ export async function PATCH(request: NextRequest) {
 // DELETE - Delete a contact
 export async function DELETE(request: NextRequest) {
     try {
+        const { authorized, error, supabase } = await verifyAdmin();
+        if (!authorized || !supabase) {
+            return NextResponse.json({ success: false, error }, { status: authorized === false && error === 'Unauthorized' ? 401 : 403 });
+        }
+
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
 
@@ -95,18 +97,14 @@ export async function DELETE(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'Contact ID required' }, { status: 400 });
         }
 
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-        const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-        const { error } = await supabase
+        const { error: dbError } = await supabase
             .from('contact_queries')
             .delete()
             .eq('id', id);
 
-        if (error) {
-            console.error('Error deleting contact:', error);
-            return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+        if (dbError) {
+            console.error('Error deleting contact:', dbError);
+            return NextResponse.json({ success: false, error: dbError.message }, { status: 500 });
         }
 
         return NextResponse.json({ success: true });

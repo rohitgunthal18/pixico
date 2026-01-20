@@ -374,8 +374,8 @@ export default function RootLayout({
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#0a0a0f" />
-        <JsonLd data={siteNavigationSchema} />
-        <JsonLd data={organizationSchema} />
+        <JsonLd key="site-nav-schema" data={siteNavigationSchema} />
+        <JsonLd key="org-schema" data={organizationSchema} />
       </head>
       <body>
         <AuthProvider>

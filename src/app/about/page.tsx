@@ -1,3 +1,4 @@
+import { createClient } from "@/lib/supabase/server";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import styles from "./page.module.css";
@@ -7,10 +8,30 @@ export const metadata = {
     description: "Learn about Pixico, the ultimate AI prompt library for Midjourney, DALL-E, Stable Diffusion, and more.",
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+    const supabase = await createClient();
+
+    // Fetch navigation categories in parallel
+    const [headerCatsRes, footerCatsRes] = await Promise.all([
+        supabase
+            .from("categories")
+            .select("id, name, slug")
+            .eq("show_in_header", true)
+            .order("sort_order"),
+        supabase
+            .from("categories")
+            .select("id, name, slug")
+            .eq("show_in_footer", true)
+            .order("sort_order")
+            .limit(6)
+    ]);
+
+    const headerCategories = (headerCatsRes.data || []) as any[];
+    const footerCategories = (footerCatsRes.data || []) as any[];
+
     return (
         <>
-            <Header />
+            <Header initialCategories={headerCategories} />
             <main className={styles.main}>
                 <div className="container">
                     <section className={styles.hero}>
@@ -67,7 +88,7 @@ export default function AboutPage() {
                     </section>
                 </div>
             </main>
-            <Footer />
+            <Footer initialCategories={footerCategories} />
         </>
     );
 }

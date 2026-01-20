@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { createClient } from "@/lib/supabase/server";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
@@ -80,11 +81,31 @@ const faqSchema = {
     ]
 };
 
-export default function FAQPage() {
+export default async function FAQPage() {
+    const supabase = await createClient();
+
+    // Fetch navigation categories in parallel
+    const [headerCatsRes, footerCatsRes] = await Promise.all([
+        supabase
+            .from("categories")
+            .select("id, name, slug")
+            .eq("show_in_header", true)
+            .order("sort_order"),
+        supabase
+            .from("categories")
+            .select("id, name, slug")
+            .eq("show_in_footer", true)
+            .order("sort_order")
+            .limit(6)
+    ]);
+
+    const headerCategories = (headerCatsRes.data || []) as any[];
+    const footerCategories = (footerCatsRes.data || []) as any[];
+
     return (
         <>
-            <JsonLd data={faqSchema} />
-            <Header />
+            <JsonLd key="faq-schema" data={faqSchema} />
+            <Header initialCategories={headerCategories} />
             <main className={styles.main}>
                 <div className="container">
                     <div className={styles.hero}>
@@ -108,7 +129,7 @@ export default function FAQPage() {
                     </div>
                 </div>
             </main>
-            <Footer />
+            <Footer initialCategories={footerCategories} />
         </>
     );
 }

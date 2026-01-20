@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import styles from "./page.module.css";
+import DOMPurify from "dompurify";
 
 interface Blog {
     id: string;
@@ -57,23 +58,38 @@ function formatDate(dateString: string): string {
     });
 }
 
-export default function BlogClient() {
+interface BlogClientProps {
+    initialBlog: Blog | null;
+    initialRelatedPrompts: RelatedPrompt[];
+    initialRelatedBlogs: RelatedBlog[];
+    headerCategories?: any[];
+    footerCategories?: any[];
+}
+
+export default function BlogClient({
+    initialBlog,
+    initialRelatedPrompts,
+    initialRelatedBlogs,
+    headerCategories,
+    footerCategories
+}: BlogClientProps) {
     const params = useParams();
     const slug = params.slug as string;
 
-    const [blog, setBlog] = useState<Blog | null>(null);
-    const [relatedPrompts, setRelatedPrompts] = useState<RelatedPrompt[]>([]);
-    const [relatedBlogs, setRelatedBlogs] = useState<RelatedBlog[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [blog, setBlog] = useState<Blog | null>(initialBlog);
+    const [relatedPrompts, setRelatedPrompts] = useState<RelatedPrompt[]>(initialRelatedPrompts);
+    const [relatedBlogs, setRelatedBlogs] = useState<RelatedBlog[]>(initialRelatedBlogs);
+    const [isLoading, setIsLoading] = useState(!initialBlog);
     const [notFoundError, setNotFoundError] = useState(false);
 
     useEffect(() => {
-        if (slug) {
+        if (slug && (!blog || blog.slug !== slug)) {
             fetchBlog();
         }
     }, [slug]);
 
     const fetchBlog = async () => {
+        setIsLoading(true);
         const supabase = createClient();
 
         const { data, error } = await supabase
@@ -160,7 +176,7 @@ export default function BlogClient() {
 
     return (
         <>
-            <Header />
+            <Header initialCategories={headerCategories} />
             <main className={styles.main}>
                 <div className={styles.hero}>
                     <div className="container">
@@ -215,7 +231,11 @@ export default function BlogClient() {
                         <article className={styles.article}>
                             <div
                                 className={styles.blogContent}
-                                dangerouslySetInnerHTML={{ __html: blog.content }}
+                                dangerouslySetInnerHTML={{
+                                    __html: typeof window !== 'undefined'
+                                        ? DOMPurify.sanitize(blog.content)
+                                        : blog.content
+                                }}
                             />
 
                             {blog.blog_tags && blog.blog_tags.length > 0 && (
@@ -363,7 +383,7 @@ export default function BlogClient() {
                     </div>
                 </div>
             </main>
-            <Footer />
+            <Footer initialCategories={footerCategories} />
         </>
     );
 }

@@ -11,6 +11,7 @@ import Footer from "@/components/Footer";
 import CategoryShowcase from "@/components/CategoryShowcase";
 import AuthModal from "@/components/AuthModal";
 import styles from "./page.module.css";
+import DOMPurify from "dompurify";
 
 interface Prompt {
     id: string;
@@ -46,18 +47,30 @@ function formatNumber(num: number): string {
     return num.toString();
 }
 
-export default function PromptClient() {
+interface PromptClientProps {
+    initialPrompt: Prompt;
+    initialRelatedPrompts: RelatedPrompt[];
+    headerCategories?: any[];
+    footerCategories?: any[];
+}
+
+export default function PromptClient({
+    initialPrompt,
+    initialRelatedPrompts,
+    headerCategories,
+    footerCategories
+}: PromptClientProps) {
     const params = useParams();
     const router = useRouter();
     const slug = params.slug as string;
     const { user } = useAuth();
 
-    const [prompt, setPrompt] = useState<Prompt | null>(null);
-    const [relatedPrompts, setRelatedPrompts] = useState<RelatedPrompt[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [prompt, setPrompt] = useState<Prompt | null>(initialPrompt);
+    const [relatedPrompts, setRelatedPrompts] = useState<RelatedPrompt[]>(initialRelatedPrompts);
+    const [isLoading, setIsLoading] = useState(false);
     const [isLiked, setIsLiked] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
-    const [localLikeCount, setLocalLikeCount] = useState(0);
+    const [localLikeCount, setLocalLikeCount] = useState(initialPrompt?.like_count || 0);
     const [copied, setCopied] = useState(false);
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
@@ -67,83 +80,41 @@ export default function PromptClient() {
     const [isRevealing, setIsRevealing] = useState(false);
 
     useEffect(() => {
-        if (slug) {
-            fetchPrompt();
+        if (initialPrompt?.id) {
+            fetchUserEngagement(initialPrompt.id);
         }
-    }, [slug]);
+    }, [initialPrompt?.id, user]);
 
-    const fetchPrompt = async () => {
+    const fetchUserEngagement = async (promptId: string) => {
         const supabase = createClient();
 
-        // Fetch prompt with category, model, and tags
-        const { data, error } = await supabase
-            .from("prompts")
-            .select(`
-                id, slug, prompt_code, title, prompt_text, description, 
-                image_url, image_alt, like_count, view_count, save_count,
-                aspect_ratio, style, meta_title, meta_description,
-                category:categories!category_id(id, name, slug),
-                ai_model:ai_models!model_id(id, name),
-                prompt_tags(tag:tags(id, name))
-            `)
-            .eq("slug", slug)
-            .eq("status", "published")
-            .single();
-
-        if (error || !data) {
-            console.error("Error fetching prompt:", error);
-            setIsLoading(false);
-            return;
-        }
-
-        setPrompt(data as unknown as Prompt);
-        setLocalLikeCount(data.like_count || 0);
-
         // Increment view count
-        await supabase.rpc("increment_view_count", { prompt_id: data.id });
+        await supabase.rpc("increment_view_count", { prompt_id: promptId });
 
-        // Fetch related prompts from same category
-        const categoryData = data.category as unknown as { id: string; name: string; slug: string } | null;
-        if (categoryData?.id) {
-            const { data: related } = await supabase
-                .from("prompts")
-                .select("id, slug, title, image_url")
-                .eq("category_id", categoryData.id)
-                .eq("status", "published")
-                .neq("id", data.id)
-                .limit(4);
-
-            setRelatedPrompts(related || []);
+        // Check if prompt was already revealed in this session
+        const wasRevealed = sessionStorage.getItem(`prompt_revealed_${promptId}`);
+        if (wasRevealed === 'true') {
+            setIsPromptRevealed(true);
         }
 
-        // Check if user has liked/saved this prompt
-        if (data.id) {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.user) {
-                const { data: statusData } = await supabase.rpc("get_user_prompt_status", {
-                    p_prompt_id: data.id,
-                    p_user_id: session.user.id
-                });
-                if (statusData) {
-                    setIsLiked(statusData.liked || false);
-                    setIsSaved(statusData.saved || false);
-                }
-            } else {
-                // Check anonymous likes from localStorage
-                const likedPrompts: string[] = JSON.parse(localStorage.getItem('pixico_liked_prompts') || '[]');
-                if (likedPrompts.includes(data.id)) {
-                    setIsLiked(true);
-                }
+        // Check user-specific status (liked/saved)
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+            const { data: statusData } = await supabase.rpc("get_user_prompt_status", {
+                p_prompt_id: promptId,
+                p_user_id: session.user.id
+            });
+            if (statusData) {
+                setIsLiked(statusData.liked || false);
+                setIsSaved(statusData.saved || false);
             }
-
-            // Check if prompt was already revealed in this session
-            const wasRevealed = sessionStorage.getItem(`prompt_revealed_${data.id}`);
-            if (wasRevealed === 'true') {
-                setIsPromptRevealed(true);
+        } else {
+            // Check anonymous likes from localStorage
+            const likedPrompts: string[] = JSON.parse(localStorage.getItem('pixico_liked_prompts') || '[]');
+            if (likedPrompts.includes(promptId)) {
+                setIsLiked(true);
             }
         }
-
-        setIsLoading(false);
     };
 
     const handleCopy = async () => {
@@ -281,13 +252,13 @@ export default function PromptClient() {
     if (isLoading) {
         return (
             <>
-                <Header />
+                <Header initialCategories={headerCategories} />
                 <main className={styles.main}>
                     <div className={styles.loading}>
                         <div className={styles.spinner}></div>
                     </div>
                 </main>
-                <Footer />
+                <Footer initialCategories={footerCategories} />
             </>
         );
     }
@@ -295,7 +266,7 @@ export default function PromptClient() {
     if (!prompt) {
         return (
             <>
-                <Header />
+                <Header initialCategories={headerCategories} />
                 <main className={styles.main}>
                     <div className={styles.notFound}>
                         <h1>Prompt Not Found</h1>
@@ -303,7 +274,7 @@ export default function PromptClient() {
                         <Link href="/" className={styles.backBtn}>Back to Home</Link>
                     </div>
                 </main>
-                <Footer />
+                <Footer initialCategories={footerCategories} />
             </>
         );
     }
@@ -312,7 +283,7 @@ export default function PromptClient() {
 
     return (
         <>
-            <Header />
+            <Header initialCategories={headerCategories} />
             <main className={styles.main}>
                 <section className={styles.hero}>
                     <div className={`container ${styles.heroContainer}`}>
@@ -452,7 +423,9 @@ export default function PromptClient() {
                                 <div
                                     className={styles.description}
                                     dangerouslySetInnerHTML={{
-                                        __html: prompt.description || `This ${prompt.ai_model?.name || "AI"} prompt is designed to help you create stunning, high-quality images. Use it with ${prompt.ai_model?.name || "your favorite AI model"} for best results.`
+                                        __html: typeof window !== 'undefined'
+                                            ? DOMPurify.sanitize(prompt.description || `This ${prompt.ai_model?.name || "AI"} prompt is designed to help you create stunning, high-quality images. Use it with ${prompt.ai_model?.name || "your favorite AI model"} for best results.`)
+                                            : (prompt.description || `This ${prompt.ai_model?.name || "AI"} prompt is designed to help you create stunning, high-quality images. Use it with ${prompt.ai_model?.name || "your favorite AI model"} for best results.`)
                                     }}
                                 />
 
@@ -498,7 +471,7 @@ export default function PromptClient() {
 
                 <CategoryShowcase />
             </main>
-            <Footer />
+            <Footer initialCategories={footerCategories} />
 
             <AuthModal
                 isOpen={showLoginPrompt}

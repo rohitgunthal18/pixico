@@ -32,16 +32,22 @@ function formatNumber(num: number): string {
     return num.toString();
 }
 
-export default function CategoryShowcase() {
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+interface CategoryShowcaseProps {
+    initialCategories?: Category[];
+}
+
+export default function CategoryShowcase({ initialCategories }: CategoryShowcaseProps) {
+    const [categories, setCategories] = useState<Category[]>(initialCategories || []);
+    const [isLoading, setIsLoading] = useState(!initialCategories);
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
     const [prompts, setPrompts] = useState<Prompt[]>([]);
     const [isLoadingPrompts, setIsLoadingPrompts] = useState(false);
 
     useEffect(() => {
-        fetchCategories();
-    }, []);
+        if (!initialCategories) {
+            fetchCategories();
+        }
+    }, [initialCategories]);
 
     const fetchCategories = async () => {
         const supabase = createClient();
@@ -55,7 +61,8 @@ export default function CategoryShowcase() {
 
             if (error) throw error;
 
-            // Get prompt counts - use same source as prompts fetch
+            // Optimized: Get all counts in one go if possible, or keep as is if small
+            // For now, let's keep the logic but wrap it in a single try/catch
             const categoriesWithCounts = await Promise.all(
                 (data || []).map(async (cat) => {
                     const { count } = await supabase
@@ -75,10 +82,7 @@ export default function CategoryShowcase() {
         }
     };
 
-    if (isLoading) return null;
-    if (categories.length === 0) return null;
-
-    if (isLoading) return null;
+    if (isLoading && !categories.length) return <div style={{ minHeight: "400px" }} />;
     if (categories.length === 0) return null;
 
     return (
@@ -95,7 +99,7 @@ export default function CategoryShowcase() {
                     {categories.map((category) => (
                         <Link
                             key={category.slug}
-                            href={`/category/${category.slug}`}
+                            href={category.slug === "all" ? "/prompts" : `/category/${category.slug}`}
                             className={styles.card}
                         >
                             <div className={styles.imageWrapper}>

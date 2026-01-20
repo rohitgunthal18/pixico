@@ -88,7 +88,9 @@
     align-items: center;
     gap: var(--space-md);
     padding: var(--space-sm) var(--space-md);
+    /* Original padding */
     font-size: 0.9rem;
+    /* Original Font Size */
     font-weight: 500;
     color: var(--text-secondary);
     text-decoration: none;
@@ -135,6 +137,7 @@
 
 .userAvatar {
     width: 36px;
+    /* Original Size */
     height: 36px;
     background: var(--gradient-primary);
     display: flex;
@@ -153,13 +156,15 @@
 }
 
 .userName {
-    font-size: 0.875rem;
+    font-size: 0.85rem;
+    /* Original Size */
     font-weight: 600;
     color: var(--text-primary);
 }
 
 .userRole {
     font-size: 0.75rem;
+    /* Original Size */
     color: var(--text-muted);
 }
 
@@ -168,7 +173,8 @@
     padding: var(--space-sm);
     background: rgba(239, 68, 68, 0.1);
     border: 1px solid rgba(239, 68, 68, 0.2);
-    font-size: 0.8rem;
+    font-size: 0.85rem;
+    /* Original Size */
     color: #f87171;
     cursor: pointer;
     transition: all var(--transition-fast);
@@ -179,7 +185,8 @@
 }
 
 .backLink {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
+    /* Original Size */
     color: var(--text-muted);
     text-decoration: none;
     text-align: center;
@@ -206,6 +213,8 @@
     padding: var(--space-md) var(--space-lg);
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--glass-border);
+    width: 100%;
+    /* Ensure it fills top */
 }
 
 .menuBtn {
@@ -233,12 +242,19 @@
 
 /* Responsive */
 @media (max-width: 900px) {
+    .adminLayout {
+        flex-direction: column;
+        /* FIX OVERLAP: Stack header and main vertically */
+    }
+
     .sidebar {
         position: fixed;
         left: -260px;
         top: 0;
         z-index: 200;
         transition: left var(--transition-base);
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+        height: 100vh;
     }
 
     .sidebar.open {
@@ -252,21 +268,46 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(0, 0, 0, 0.8);
         z-index: 199;
+        backdrop-filter: blur(4px);
     }
 
     .mobileHeader {
         display: flex;
+        position: sticky;
+        top: 0;
+        z-index: 100;
     }
 
     .main {
-        padding: var(--space-lg);
+        padding: var(--space-md);
+        width: 100%;
+    }
+
+    /* Mobile Only Adjustments for Layout Components */
+    .navItem {
+        padding: var(--space-xs) var(--space-md);
+        font-size: 0.85rem;
+    }
+
+    .userAvatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+
+    .userName {
+        font-size: 0.8rem;
+    }
+
+    .userRole {
+        font-size: 0.7rem;
     }
 }
 
 @media (max-width: 600px) {
     .main {
-        padding: var(--space-md);
+        padding: 12px;
     }
 }

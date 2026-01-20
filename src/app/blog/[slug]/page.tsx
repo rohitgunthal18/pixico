@@ -48,24 +48,55 @@ export default async function Page({ params }: Props) {
     const { slug } = await params;
     const supabase = await createClient();
 
-    // Basic check for existence
-    const { data } = await supabase
+    // Fetch full blog details with category and tags
+    const { data: blog, error } = await supabase
         .from("blogs")
-        .select("id")
+        .select(`
+            id, title, slug, excerpt, content, featured_image, image_alt,
+            view_count, created_at, updated_at, published_at, meta_title, meta_description, meta_keywords,
+            category:categories!category_id(id, name, slug),
+            blog_tags(tag:tags(id, name))
+        `)
         .eq("slug", slug)
         .eq("status", "published")
         .single();
 
-    if (!data) {
+    if (error || !blog) {
         notFound();
     }
 
-    // Fetch details for JSON-LD
-    const { data: blog } = await supabase
-        .from("blogs")
-        .select("title, excerpt, featured_image, created_at, updated_at, category:categories(name, slug)")
-        .eq("id", data.id)
-        .single();
+    // Fetch everything in parallel
+    const [headerCatsRes, footerCatsRes, promptsRes, blogsRes, _] = await Promise.all([
+        supabase
+            .from("categories")
+            .select("id, name, slug")
+            .eq("show_in_header", true)
+            .order("sort_order"),
+        supabase
+            .from("categories")
+            .select("id, name, slug")
+            .order("sort_order"),
+        supabase
+            .from("prompts")
+            .select("id, title, slug, image_url, view_count")
+            .eq("category_id", (blog as any).category?.id)
+            .eq("status", "published")
+            .order("view_count", { ascending: false })
+            .limit(6),
+        supabase
+            .from("blogs")
+            .select("id, title, slug, featured_image, view_count")
+            .eq("category_id", (blog as any).category?.id)
+            .eq("status", "published")
+            .neq("id", blog.id)
+            .order("view_count", { ascending: false })
+            .limit(6),
+        // Increment view count in background on server
+        supabase.rpc("increment_blog_view_count", { blog_id: blog.id })
+    ]);
+
+    const headerCategories = (headerCatsRes.data || []) as any[];
+    const footerCategories = (footerCatsRes.data || []) as any[];
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://pixico-w3us.vercel.app';
     const breadcrumbSchema = generateBreadcrumbSchema([
@@ -98,9 +129,15 @@ export default async function Page({ params }: Props) {
 
     return (
         <>
-            <JsonLd data={breadcrumbSchema} />
-            <JsonLd data={jsonLd} />
-            <BlogClient />
+            <JsonLd key="breadcrumb-schema" data={breadcrumbSchema} />
+            <JsonLd key="blog-schema" data={jsonLd} />
+            <BlogClient
+                initialBlog={blog as any}
+                initialRelatedPrompts={promptsRes.data || []}
+                initialRelatedBlogs={blogsRes.data || []}
+                headerCategories={headerCategories}
+                footerCategories={footerCategories}
+            />
         </>
     );
 }

@@ -33,13 +33,19 @@ const company = [
     { name: "Terms of Service", slug: "terms" },
 ];
 
-export default function Footer() {
+interface FooterProps {
+    initialCategories?: Category[];
+}
+
+export default function Footer({ initialCategories }: FooterProps) {
     const currentYear = new Date().getFullYear();
-    const [categories, setCategories] = useState<Category[]>([]);
+    const [categories, setCategories] = useState<Category[]>(initialCategories || []);
 
     useEffect(() => {
-        fetchCategories();
-    }, []);
+        if (!initialCategories) {
+            fetchCategories();
+        }
+    }, [initialCategories]);
 
     const fetchCategories = async () => {
         const supabase = createClient();

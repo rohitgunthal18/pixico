@@ -39,10 +39,17 @@ export default function AdminLoginPage() {
                     .eq("id", authData.user.id)
                     .single();
 
-                if (profileError || profile?.role !== "admin") {
+                if (profileError) {
+                    await supabase.auth.signOut();
+                    setError(`Admin check failed: ${profileError.message}`);
+                    setIsLoading(false);
+                    return;
+                }
+
+                if (profile?.role !== "admin") {
                     // Sign out if not an admin
                     await supabase.auth.signOut();
-                    setError("Unauthorized: You do not have administrator privileges.");
+                    setError(`Unauthorized: Your role is "${profile?.role || 'null'}", but admin privileges are required.`);
                     setIsLoading(false);
                     return;
                 }

@@ -14,14 +14,31 @@ interface Category {
     description: string | null;
 }
 
-export default function CategoryClient() {
-    const params = useParams();
-    const slug = params.slug as string;
-    const [category, setCategory] = useState<Category | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+interface CategoryClientProps {
+    initialCategory: Category | null;
+    initialPrompts: any[];
+    slug: string;
+    headerCategories?: any[];
+    footerCategories?: any[];
+}
+
+export default function CategoryClient({
+    initialCategory,
+    initialPrompts,
+    slug,
+    headerCategories,
+    footerCategories
+}: CategoryClientProps) {
+    const [category, setCategory] = useState<Category | null>(initialCategory);
+    const [isLoading, setIsLoading] = useState(!initialCategory && initialCategory !== null);
 
     useEffect(() => {
         const fetchCategory = async () => {
+            if (category && category.id) {
+                setIsLoading(false);
+                return;
+            }
+
             const supabase = createClient();
             const { data, error } = await supabase
                 .from("categories")
@@ -35,15 +52,13 @@ export default function CategoryClient() {
             setIsLoading(false);
         };
 
-        if (slug) {
-            fetchCategory();
-        }
-    }, [slug]);
+        fetchCategory();
+    }, [slug, category]);
 
     if (isLoading) {
         return (
             <>
-                <Header />
+                <Header initialCategories={headerCategories} />
                 <main className={styles.main}>
                     <div className="container">
                         <div className={styles.loading}>
@@ -51,7 +66,7 @@ export default function CategoryClient() {
                         </div>
                     </div>
                 </main>
-                <Footer />
+                <Footer initialCategories={footerCategories} />
             </>
         );
     }
@@ -59,7 +74,7 @@ export default function CategoryClient() {
     if (!category) {
         return (
             <>
-                <Header />
+                <Header initialCategories={headerCategories} />
                 <main className={styles.main}>
                     <div className="container">
                         <div className={styles.error}>
@@ -68,14 +83,14 @@ export default function CategoryClient() {
                         </div>
                     </div>
                 </main>
-                <Footer />
+                <Footer initialCategories={footerCategories} />
             </>
         );
     }
 
     return (
         <>
-            <Header />
+            <Header initialCategories={headerCategories} />
             <main className={styles.main}>
                 <div className="container">
                     <PromptGrid
@@ -86,10 +101,11 @@ export default function CategoryClient() {
                         showViewAll={false}
                         sectionType="category"
                         categoryId={category.id}
+                        initialPrompts={initialPrompts}
                     />
                 </div>
             </main>
-            <Footer />
+            <Footer initialCategories={footerCategories} />
         </>
     );
 }

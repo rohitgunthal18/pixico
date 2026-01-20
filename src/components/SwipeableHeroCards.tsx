@@ -28,7 +28,7 @@ const fallbackPrompts: TrendingPrompt[] = [
 ];
 
 export default function SwipeableHeroCards() {
-    const [trendingPool, setTrendingPool] = useState<TrendingPrompt[]>([]);
+    const [trendingPool, setTrendingPool] = useState<TrendingPrompt[]>(fallbackPrompts);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
     const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null);
@@ -41,8 +41,17 @@ export default function SwipeableHeroCards() {
         startX: 0,
         currentX: 0,
     });
+    const [lastDragState, setLastDragState] = useState<{ x: number; rotate: number; opacity: number } | null>(null);
 
     const cardRef = useRef<HTMLDivElement>(null);
+    const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    // Clear pause timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+        };
+    }, []);
 
     // Fetch trending prompts from database
     useEffect(() => {
@@ -56,6 +65,7 @@ export default function SwipeableHeroCards() {
                     category:categories!category_id(name)
                 `)
                 .eq("status", "published")
+                .not("image_url", "is", null)
                 .order("view_count", { ascending: false })
                 .limit(20); // Fetch more to filter by aspect ratio
 
@@ -124,8 +134,12 @@ export default function SwipeableHeroCards() {
     const visibleCards = getVisibleCards();
 
     // Handle swipe
-    const handleSwipe = (direction: "left" | "right") => {
+    const handleSwipe = (direction: "left" | "right", dragRelease?: { x: number; rotate: number; opacity: number }) => {
         if (isAnimating || trendingPool.length === 0) return;
+
+        if (dragRelease) {
+            setLastDragState(dragRelease);
+        }
 
         setIsAnimating(true);
         setSwipeDirection(direction);
@@ -133,17 +147,29 @@ export default function SwipeableHeroCards() {
 
         // After animation completes, update index
         setTimeout(() => {
+            // Both directions now advance the queue to prevent images from "coming back"
+            // specifically requested by user feedback
             setCurrentIndex((prev) => (prev + 1) % trendingPool.length);
+
             setSwipeDirection(null);
+            setLastDragState(null); // Clear the last drag state
             setIsAnimating(false);
             setIsNewCardEntering(false);
-        }, 500); // Match CSS animation duration
+        }, 300); // Synchronized with CSS animation (0.3s)
     };
 
     // Mouse/Touch event handlers
     const handleDragStart = (clientX: number) => {
-        if (isAnimating) return;
-        setIsPaused(true); // Pause auto-swipe when user interacts
+        // Removed isAnimating block to allow instant turnaround during fast manual swipes
+
+
+        // Stop any pending resume timer
+        if (pauseTimeoutRef.current) {
+            clearTimeout(pauseTimeoutRef.current);
+            pauseTimeoutRef.current = null;
+        }
+
+        setIsPaused(true); // Explicitly pause auto-swipe
         setDragState({
             isDragging: true,
             startX: clientX,
@@ -160,10 +186,19 @@ export default function SwipeableHeroCards() {
         if (!dragState.isDragging) return;
 
         const dragDistance = dragState.currentX - dragState.startX;
-        const threshold = 80; // Minimum drag distance to trigger swipe
+        const threshold = 15; // Further reduced from 30 for ultra-sensitive flick recognition
 
         if (Math.abs(dragDistance) > threshold) {
-            handleSwipe(dragDistance < 0 ? "left" : "right");
+            // Capture final state for seamless animation handover
+            const finalX = dragDistance;
+            const finalRotate = dragDistance * 0.08;
+            const finalOpacity = Math.max(0.3, 1 - Math.abs(dragDistance) / 400);
+
+            handleSwipe(dragDistance < 0 ? "left" : "right", {
+                x: finalX,
+                rotate: finalRotate,
+                opacity: finalOpacity
+            });
         }
 
         setDragState({
@@ -172,8 +207,12 @@ export default function SwipeableHeroCards() {
             currentX: 0,
         });
 
-        // Resume auto-swipe after a short delay
-        setTimeout(() => setIsPaused(false), 3000);
+        // Start/Reset the 5-second idle resume timer
+        if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+        pauseTimeoutRef.current = setTimeout(() => {
+            setIsPaused(false);
+            pauseTimeoutRef.current = null;
+        }, 5000); // 5 seconds of idle before resuming auto-swipe
     };
 
     // Mouse events
@@ -220,22 +259,20 @@ export default function SwipeableHeroCards() {
         <>
             {/* Preload all trending images for smooth performance */}
             <div style={{ display: "none" }}>
-                {trendingPool.map((prompt) => (
+                {trendingPool.map((prompt, index) => (
                     <Image
                         key={`preload-${prompt.id}`}
                         src={prompt.image_url}
                         alt={prompt.title}
                         width={300}
                         height={400}
-                        priority
+                        priority={index < 4}
                     />
                 ))}
             </div>
 
             <div
                 className={styles.cardsContainer}
-                onMouseEnter={() => setIsPaused(true)}
-                onMouseLeave={() => setIsPaused(false)}
             >
                 {visibleCards.map((prompt, index) => {
                     const isTopCard = index === 0;
@@ -247,7 +284,12 @@ export default function SwipeableHeroCards() {
                     if (index === 0) cardClass += ` ${styles.cardTop}`;
                     if (index === 1) cardClass += ` ${styles.cardMiddle}`;
                     if (index === 2) cardClass += ` ${styles.cardBottom}`;
-                    if (index === 3) cardClass += ` ${styles.cardHidden}`; // 4th card hidden below
+                    if (index === 3) cardClass += ` ${styles.cardHidden}`;
+
+                    // Disable transitions during any active movement (drag or animation)
+                    if (isAnimating || dragState.isDragging) {
+                        cardClass += ` ${styles.noTransition}`;
+                    }
 
                     // Apply animation classes
                     if (isSwipingTopCard) {
@@ -267,18 +309,25 @@ export default function SwipeableHeroCards() {
 
                     return (
                         <div
-                            key={`${prompt.id}-${index}`}
+                            key={prompt.id}
                             ref={isTopCard ? cardRef : null}
                             className={cardClass}
-                            style={
-                                isDraggingTopCard
+                            style={{
+                                ...(isDraggingTopCard
                                     ? {
-                                        transform: `translateX(${dragOffset}px) rotate(${dragOffset * 0.05}deg)`,
+                                        transform: `translateX(${dragOffset}px) rotate(${dragOffset * 0.08}deg) scale(1)`,
                                         opacity: Math.max(0.3, 1 - Math.abs(dragOffset) / 400),
                                         cursor: "grabbing",
+                                        transition: "none", // Prevent laggy thumb following
                                     }
-                                    : {}
-                            }
+                                    : {}),
+                                ...(lastDragState && isTopCard && isAnimating ? {
+                                    "--drag-x": `${lastDragState.x}px`,
+                                    "--drag-rotate": `${lastDragState.rotate}deg`,
+                                    "--drag-opacity": lastDragState.opacity,
+                                } as React.CSSProperties : {}),
+                                willChange: "transform, opacity",
+                            }}
                             onMouseDown={isTopCard ? onMouseDown : undefined}
                             onMouseMove={isTopCard ? onMouseMove : undefined}
                             onMouseUp={isTopCard ? onMouseUp : undefined}

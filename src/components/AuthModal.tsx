@@ -35,6 +35,7 @@ export default function AuthModal({ isOpen, onClose, contextMessage }: AuthModal
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
+    const [isPasswordUpdated, setIsPasswordUpdated] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
     const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -63,6 +64,7 @@ export default function AuthModal({ isOpen, onClose, contextMessage }: AuthModal
         setConfirmNewPassword("");
         setError(null);
         setSuccess(null);
+        setIsPasswordUpdated(false);
         setShowPassword(false);
         onClose();
     };
@@ -107,6 +109,7 @@ export default function AuthModal({ isOpen, onClose, contextMessage }: AuthModal
     };
 
     const getErrorMessage = (errorMsg: string): string => {
+        if (!errorMsg) return "An unexpected error occurred. Please try again.";
         const lowerError = errorMsg.toLowerCase();
         if (lowerError.includes("already registered") || lowerError.includes("already exists")) {
             return "This email is already registered. Please sign in instead.";
@@ -125,6 +128,9 @@ export default function AuthModal({ isOpen, onClose, contextMessage }: AuthModal
         }
         if (lowerError.includes("user not found")) {
             return "No account found with this email. Please sign up first.";
+        }
+        if (lowerError.includes("new password should be different") || lowerError.includes("same as old")) {
+            return "The new password must be different from your current one.";
         }
         return errorMsg;
     };
@@ -246,26 +252,32 @@ export default function AuthModal({ isOpen, onClose, contextMessage }: AuthModal
             setError("Passwords do not match");
             return;
         }
-
         setIsLoading(true);
         setError(null);
         setSuccess(null);
 
         try {
+            console.log("AuthModal: handleSetNewPassword triggered- email:", email);
             const { error } = await updatePassword(newPassword);
+            console.log("AuthModal: updatePassword result:", error ? error.message : "SUCCESS");
+
             if (error) {
                 setError(getErrorMessage(error.message));
             } else {
                 setSuccess("Password updated successfully!");
-                // Clear inputs
+                setIsPasswordUpdated(true);
                 setNewPassword("");
                 setConfirmNewPassword("");
-                // Close modal after delay to let user see success message
-                setTimeout(() => handleClose(), 2000);
+                setTimeout(() => {
+                    console.log("AuthModal: Closing after success...");
+                    handleClose();
+                }, 3000);
             }
         } catch (err) {
+            console.error("AuthModal: Critical error in handleSetNewPassword:", err);
             setError("An unexpected error occurred. Please try again.");
         } finally {
+            console.log("AuthModal: Setting isLoading(false)");
             setIsLoading(false);
         }
     };
@@ -559,7 +571,7 @@ export default function AuthModal({ isOpen, onClose, contextMessage }: AuthModal
                     {/* Set New Password */}
                     {step === "set-password" && (
                         <form onSubmit={handleSetNewPassword} className={styles.form}>
-                            {!success ? (
+                            {!isPasswordUpdated ? (
                                 <>
                                     <div className={styles.inputGroup}>
                                         <label htmlFor="new-password">New Password</label>
@@ -580,7 +592,13 @@ export default function AuthModal({ isOpen, onClose, contextMessage }: AuthModal
                                 </>
                             ) : (
                                 <div className={styles.successWrapper}>
-                                    <p>Redirecting you back...</p>
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: '#4ade80', marginBottom: '1rem' }}>
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                        <polyline points="22 4 12 14.01 9 11.01" />
+                                    </svg>
+                                    <h3>Success!</h3>
+                                    <p>{success}</p>
+                                    <p className={styles.redirectHint}>Redirecting you back...</p>
                                 </div>
                             )}
                         </form>

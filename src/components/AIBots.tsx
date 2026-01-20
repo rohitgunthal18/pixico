@@ -38,6 +38,24 @@ export default function AIBots() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
+    // Prevent background scrolling on mobile when chat is open
+    useEffect(() => {
+        // Only apply on mobile devices
+        const isMobile = window.innerWidth <= 768;
+
+        if (isOpen && isMobile) {
+            // Store original overflow value
+            const originalOverflow = document.body.style.overflow;
+            // Prevent background scrolling
+            document.body.style.overflow = 'hidden';
+
+            // Cleanup: restore original overflow when chat closes
+            return () => {
+                document.body.style.overflow = originalOverflow;
+            };
+        }
+    }, [isOpen]);
+
     const scrollToBottom = () => {
         chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };

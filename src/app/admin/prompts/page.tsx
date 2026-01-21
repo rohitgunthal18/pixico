@@ -100,17 +100,27 @@ export default function PromptsPage() {
     const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
     const handleStatusChange = async (promptId: string, newStatus: string) => {
-        const supabase = createClient();
-        const { error } = await supabase
-            .from("prompts")
-            .update({ status: newStatus })
-            .eq("id", promptId);
+        setError(null);
+        setSuccess(null);
 
-        if (error) {
-        } else {
-            setPrompts(prompts.map(p =>
-                p.id === promptId ? { ...p, status: newStatus } : p
-            ));
+        try {
+            const supabase = createClient();
+            const { error: updateError } = await supabase
+                .from("prompts")
+                .update({ status: newStatus })
+                .eq("id", promptId);
+
+            if (updateError) {
+                setError(`Failed to update status: ${updateError.message}`);
+            } else {
+                setPrompts(prompts.map(p =>
+                    p.id === promptId ? { ...p, status: newStatus } : p
+                ));
+                setSuccess("Prompt status updated successfully");
+                setTimeout(() => setSuccess(null), 3000);
+            }
+        } catch (err) {
+            setError("An unexpected error occurred while updating status.");
         }
     };
 

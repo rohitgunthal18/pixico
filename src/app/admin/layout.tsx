@@ -101,11 +101,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         const supabase = createClient();
 
         try {
-            // Priority 1: Check actual Supabase session
+            // Verify actual Supabase session
             const { data: { session } } = await supabase.auth.getSession();
 
             if (session?.user) {
-                // Verify admin role
+                // Verify admin role in profiles table
                 const { data: profile } = await supabase
                     .from("profiles")
                     .select("role")
@@ -119,26 +119,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 }
             }
 
-            // Priority 2: Fallback to localStorage for legacy session (handle migration)
-            const sessionStr = localStorage.getItem("adminSession");
-
-            if (!sessionStr) {
-                router.push("/admin");
-                return;
-            }
-
-            const sessionLegacy: AdminSession = JSON.parse(sessionStr);
-
-            // Check if session is expired
-            if (Date.now() > sessionLegacy.expiresAt) {
-                localStorage.removeItem("adminSession");
-                router.push("/admin");
-                return;
-            }
-
-            // If we have a legacy session but no Supabase session, we should stay authenticated
-            // but the database RLS will likely block us until we re-login.
-            setIsAuthenticated(true);
+            // If we reach here, we are not authenticated or not an admin
+            // Clear any legacy session to be safe
+            localStorage.removeItem("adminSession");
+            router.push("/admin");
         } catch (err) {
             router.push("/admin");
         } finally {

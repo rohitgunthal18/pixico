@@ -2,27 +2,39 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 export default function AdminIndexPage() {
     const router = useRouter();
 
     useEffect(() => {
-        // Check if admin is logged in
-        const sessionStr = localStorage.getItem("adminSession");
-        if (sessionStr) {
-            try {
-                const session = JSON.parse(sessionStr);
-                if (session.authenticated && Date.now() < session.expiresAt) {
-                    // Already logged in, go to home
-                    router.replace("/admin/home");
-                    return;
-                }
-            } catch {
-                // Invalid session
+        const checkAuth = async () => {
+            const supabase = createClient();
+            const { data: { session } } = await supabase.auth.getSession();
+
+            if (session?.user) {
+                router.replace("/admin/home");
+                return;
             }
-        }
-        // Not logged in, go to login
-        router.replace("/admin/login");
+
+            // Fallback for transition period (if any)
+            const sessionStr = localStorage.getItem("adminSession");
+            if (sessionStr) {
+                try {
+                    const session = JSON.parse(sessionStr);
+                    if (session.authenticated && Date.now() < session.expiresAt) {
+                        router.replace("/admin/home");
+                        return;
+                    }
+                } catch {
+                    // Invalid session
+                }
+            }
+            // Not logged in, go to login
+            router.replace("/admin/login");
+        };
+
+        checkAuth();
     }, [router]);
 
     return (

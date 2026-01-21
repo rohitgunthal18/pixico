@@ -48,28 +48,37 @@ export default function CategoriesPage() {
         fetchCategories();
     }, []);
 
+    // Failsafe: Ensure loading stops after 5 seconds
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (isLoading) {
+                setIsLoading(false);
+            }
+        }, 5000);
+        return () => clearTimeout(timer);
+    }, [isLoading]);
+
     const fetchCategories = async () => {
         setIsLoading(true);
         const supabase = createClient();
 
         try {
+            // Fetch categories with prompt counts in a SINGLE query (fixes N+1)
             const { data, error: fetchError } = await supabase
                 .from("categories")
-                .select("*")
+                .select(`
+                    *,
+                    prompt_categories(count)
+                `)
                 .order("sort_order");
 
             if (fetchError) throw fetchError;
 
-            // Get prompt counts for each category
-            const categoriesWithCounts = await Promise.all(
-                (data || []).map(async (cat) => {
-                    const { count } = await supabase
-                        .from("prompt_categories")
-                        .select("*", { count: "exact", head: true })
-                        .eq("category_id", cat.id);
-                    return { ...cat, prompt_count: count || 0 };
-                })
-            );
+            // Transform the data to extract count
+            const categoriesWithCounts = (data || []).map((cat: any) => ({
+                ...cat,
+                prompt_count: cat.prompt_categories?.[0]?.count || 0
+            }));
 
             setCategories(categoriesWithCounts);
         } catch (err) {

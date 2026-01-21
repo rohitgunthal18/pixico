@@ -17,6 +17,8 @@ interface Blog {
     category: { name: string } | null;
 }
 
+const ITEMS_PER_PAGE = 20;
+
 export default function BlogsPage() {
     const [blogs, setBlogs] = useState<Blog[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -26,6 +28,10 @@ export default function BlogsPage() {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -37,25 +43,52 @@ export default function BlogsPage() {
 
     useEffect(() => {
         fetchBlogs();
-    }, []);
+    }, [currentPage]);
+
+    // Failsafe: Ensure loading stops after 5 seconds
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (isLoading) {
+                setIsLoading(false);
+            }
+        }, 5000);
+        return () => clearTimeout(timer);
+    }, [isLoading]);
+
+    const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
     const fetchBlogs = async () => {
+        setIsLoading(true);
         try {
             const supabase = createClient();
+
+            // Get total count first
+            const { count } = await supabase
+                .from("blogs")
+                .select("*", { count: "exact", head: true });
+
+            setTotalCount(count || 0);
+
+            // Calculate range for pagination
+            const from = (currentPage - 1) * ITEMS_PER_PAGE;
+            const to = from + ITEMS_PER_PAGE - 1;
+
             const { data, error } = await supabase
                 .from("blogs")
                 .select(`
                     id, title, slug, featured_image, status, view_count, created_at,
                     category:categories!category_id(name)
                 `)
-                .order("created_at", { ascending: false });
+                .order("created_at", { ascending: false })
+                .range(from, to);
 
             if (error) {
-                // Ignore error in production logs
+                setError("Failed to load blogs");
             } else {
                 setBlogs((data || []) as unknown as Blog[]);
             }
         } catch (err) {
+            setError("An unexpected error occurred");
         } finally {
             setIsLoading(false);
         }
@@ -141,7 +174,7 @@ export default function BlogsPage() {
             <header className={styles.header}>
                 <div className={styles.headerLeft}>
                     <h1>Blogs</h1>
-                    <span className={styles.count}>{blogs.length} total</span>
+                    <span className={styles.count}>{totalCount} total</span>
                 </div>
                 <Link href="/admin/blogs/new" className={styles.addBtn}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -316,6 +349,29 @@ export default function BlogsPage() {
                             ))}
                         </tbody>
                     </table>
+                </div>
+            )}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div className={styles.pagination}>
+                    <button
+                        className={styles.pageBtn}
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                    >
+                        ← Previous
+                    </button>
+                    <div className={styles.pageInfo}>
+                        Page {currentPage} of {totalPages}
+                    </div>
+                    <button
+                        className={styles.pageBtn}
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                    >
+                        Next →
+                    </button>
                 </div>
             )}
         </div>

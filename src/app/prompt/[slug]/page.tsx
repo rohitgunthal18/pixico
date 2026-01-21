@@ -48,27 +48,43 @@ export default async function Page({ params }: Props) {
     const { slug } = await params;
     const supabase = await createClient();
 
-    // Fetch everything in parallel
-    const [promptRes, relatedRes, headerCatsRes, footerCatsRes] = await Promise.all([
-        supabase
-            .from("prompts")
-            .select(`
-                id, slug, prompt_code, title, prompt_text, description, 
-                image_url, image_alt, like_count, view_count, save_count,
-                aspect_ratio, style, meta_title, meta_description, created_at, updated_at,
-                category:categories!category_id(id, name, slug),
-                ai_model:ai_models!model_id(id, name),
-                prompt_tags(tag:tags(id, name))
-            `)
-            .eq("slug", slug)
-            .eq("status", "published")
-            .single(),
-        supabase
-            .from("prompts")
-            .select("id, slug, title, image_url")
-            .eq("status", "published")
-            .neq("slug", slug)
-            .limit(4), // Fallback related prompts, will refine if cat exists
+    // Fetch prompt first to get category_id
+    const { data: prompt, error: promptError } = await supabase
+        .from("prompts")
+        .select(`
+            id, slug, prompt_code, title, prompt_text, description, 
+            image_url, image_alt, like_count, view_count, save_count,
+            aspect_ratio, style, meta_title, meta_description, created_at, updated_at,
+            category_id,
+            category:categories!category_id(id, name, slug),
+            ai_model:ai_models!model_id(id, name),
+            prompt_tags(tag:tags(id, name))
+        `)
+        .eq("slug", slug)
+        .eq("status", "published")
+        .single();
+
+    if (!prompt) {
+        notFound();
+    }
+
+    // Now fetch all remaining data in parallel (including category-specific related prompts)
+    const [relatedRes, headerCatsRes, footerCatsRes] = await Promise.all([
+        // Fetch related prompts by category if available, otherwise random
+        prompt.category_id
+            ? supabase
+                .from("prompts")
+                .select("id, slug, title, image_url")
+                .eq("category_id", prompt.category_id)
+                .eq("status", "published")
+                .neq("id", prompt.id)
+                .limit(4)
+            : supabase
+                .from("prompts")
+                .select("id, slug, title, image_url")
+                .eq("status", "published")
+                .neq("slug", slug)
+                .limit(4),
         supabase
             .from("categories")
             .select("id, name, slug")
@@ -80,28 +96,9 @@ export default async function Page({ params }: Props) {
             .order("sort_order")
     ]);
 
-    const prompt = promptRes.data;
-    if (!prompt) {
-        notFound();
-    }
-
     const headerCategories = (headerCatsRes.data || []) as any[];
     const footerCategories = (footerCatsRes.data || []) as any[];
-
-    // Refine related prompts by category if available
-    let relatedPrompts = relatedRes.data || [];
-    if ((prompt.category as any)?.id) {
-        const { data: catRelated } = await supabase
-            .from("prompts")
-            .select("id, slug, title, image_url")
-            .eq("category_id", prompt.category.id)
-            .eq("status", "published")
-            .neq("id", prompt.id)
-            .limit(4);
-        if (catRelated && catRelated.length > 0) {
-            relatedPrompts = catRelated;
-        }
-    }
+    const relatedPrompts = relatedRes.data || [];
 
     // Calculate rating from engagement metrics
     const ratingValue = prompt?.like_count && prompt?.view_count

@@ -45,37 +45,25 @@ export default function AdminHomePage() {
         const supabase = createClient();
 
         try {
-            const [usersRes, promptsRes, contactsRes] = await Promise.all([
+            // Run ALL queries in parallel for maximum performance
+            const [usersRes, promptsRes, contactsRes, viewsData, recentPrompts, recentContacts] = await Promise.all([
                 supabase.from("profiles").select("*", { count: "exact", head: true }),
                 supabase.from("prompts").select("*", { count: "exact", head: true }),
                 supabase.from("contact_queries").select("*", { count: "exact", head: true }),
+                supabase.from("prompts").select("view_count"),
+                supabase.from("prompts").select("id, title, view_count, created_at").order("created_at", { ascending: false }).limit(5),
+                supabase.from("contact_queries").select("id, name, email, subject, status, created_at").order("created_at", { ascending: false }).limit(5),
             ]);
 
-            const { data: viewsData } = await supabase
-                .from("prompts")
-                .select("view_count");
-
-            const totalViews = viewsData?.reduce((sum, p) => sum + (p.view_count || 0), 0) || 0;
-
-            const { data: recentPrompts } = await supabase
-                .from("prompts")
-                .select("id, title, view_count, created_at")
-                .order("created_at", { ascending: false })
-                .limit(5);
-
-            const { data: recentContacts } = await supabase
-                .from("contact_queries")
-                .select("id, name, email, subject, status, created_at")
-                .order("created_at", { ascending: false })
-                .limit(5);
+            const totalViews = viewsData.data?.reduce((sum, p) => sum + (p.view_count || 0), 0) || 0;
 
             setStats({
                 totalUsers: usersRes.count || 0,
                 totalPrompts: promptsRes.count || 0,
                 totalViews,
                 totalContacts: contactsRes.count || 0,
-                recentPrompts: recentPrompts || [],
-                recentContacts: recentContacts || [],
+                recentPrompts: recentPrompts.data || [],
+                recentContacts: recentContacts.data || [],
             });
         } catch (error) {
             // Error handling could be added here if needed

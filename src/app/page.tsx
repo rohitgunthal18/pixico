@@ -17,8 +17,14 @@ const BlogSection = dynamic(() => import("@/components/BlogSection"), {
 export default async function Home() {
   const supabase = await createClient();
 
-  // 1. Fetch all basic navigation and showcase categories first
-  const [headerCatsRes, footerCatsRes, showcaseCatsRes] = await Promise.all([
+  // Fetch ALL data in a single Promise.all for maximum parallel performance
+  const [
+    headerCatsRes,
+    footerCatsRes,
+    showcaseCatsRes,
+    featuredRes,
+    trendingRes
+  ] = await Promise.all([
     supabase
       .from("categories")
       .select("id, name, slug")
@@ -30,33 +36,16 @@ export default async function Home() {
       .eq("show_in_footer", true)
       .order("sort_order")
       .limit(6),
+    // Fetch showcase categories WITH prompt counts in single query (fixes N+1)
     supabase
       .from("categories")
-      .select("id, name, slug, description, image_url")
+      .select(`
+        id, name, slug, description, image_url,
+        prompts(count)
+      `)
       .eq("show_in_showcase", true)
       .order("sort_order")
-      .limit(6)
-  ]);
-
-  const showcaseCategories = showcaseCatsRes.data || [];
-  const headerCategories = (headerCatsRes.data || []) as any[];
-  const footerCategories = (footerCatsRes.data || []) as any[];
-
-  // 2. Fetch everything else in parallel: 
-  // - Category counts
-  // - Featured prompts
-  // - Trending prompts
-  const [categoriesWithCounts, featuredRes, trendingRes] = await Promise.all([
-    Promise.all(
-      showcaseCategories.map(async (cat) => {
-        const { count } = await supabase
-          .from("prompts")
-          .select("*", { count: "exact", head: true })
-          .eq("category_id", cat.id)
-          .eq("status", "published");
-        return { ...cat, prompt_count: count || 0 };
-      })
-    ),
+      .limit(6),
     supabase
       .from("prompts")
       .select(`
@@ -79,6 +68,15 @@ export default async function Home() {
       .limit(10)
   ]);
 
+  const headerCategories = (headerCatsRes.data || []) as any[];
+  const footerCategories = (footerCatsRes.data || []) as any[];
+
+  // Transform showcase categories to extract prompt counts
+  const showcaseCategories = (showcaseCatsRes.data || []).map((cat: any) => ({
+    ...cat,
+    prompt_count: cat.prompts?.[0]?.count || 0
+  }));
+
   return (
     <>
       <Header initialCategories={headerCategories} />
@@ -93,7 +91,7 @@ export default async function Home() {
           sectionType="featured"
           initialPrompts={featuredRes.data || []}
         />
-        <CategoryShowcase initialCategories={categoriesWithCounts as any} />
+        <CategoryShowcase initialCategories={showcaseCategories as any} />
         <PromptGrid
           id="trending"
           title="Trending This Week"

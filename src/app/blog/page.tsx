@@ -12,7 +12,7 @@ export const metadata = {
 export default async function BlogPage() {
     const supabase = await createClient();
 
-    const [headerCatsRes, footerCatsRes, blogRes, catRes] = await Promise.all([
+    const [headerCatsRes, footerCatsRes, blogRes] = await Promise.all([
         supabase
             .from("categories")
             .select("id, name, slug")
@@ -29,17 +29,15 @@ export default async function BlogPage() {
                 category:categories!category_id(id, name, slug)
             `)
             .eq("status", "published")
-            .order("created_at", { ascending: false }),
-        supabase
-            .from("categories")
-            .select("id, name, slug")
-            .order("sort_order"),
+            .order("created_at", { ascending: false })
+            .limit(20)  // Limit initial load for speed
     ]);
 
     const headerCategories = (headerCatsRes.data || []) as any[];
     const footerCategories = (footerCatsRes.data || []) as any[];
     const blogs = (blogRes.data || []) as any[];
-    const categories = (catRes.data || []).filter(c => c.slug !== 'all') as any[];
+    // Use footerCategories for blog category filter (already has all categories)
+    const categories = footerCategories.filter((c: any) => c.slug !== 'all');
 
     return (
         <>

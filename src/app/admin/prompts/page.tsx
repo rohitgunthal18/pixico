@@ -20,6 +20,8 @@ interface Prompt {
     ai_model: { name: string } | null;
 }
 
+const ITEMS_PER_PAGE = 20;
+
 export default function PromptsPage() {
     const [prompts, setPrompts] = useState<Prompt[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -29,6 +31,10 @@ export default function PromptsPage() {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
 
     // Escape to cancel confirmation
     useEffect(() => {
@@ -41,14 +47,23 @@ export default function PromptsPage() {
 
     useEffect(() => {
         fetchPrompts();
-    }, []);
+    }, [currentPage]);
 
     const fetchPrompts = async () => {
+        setIsLoading(true);
         try {
             const supabase = createClient();
 
-            // Fetch auth state
-            const { data: { session } } = await supabase.auth.getSession();
+            // Get total count first
+            const { count } = await supabase
+                .from("prompts")
+                .select("*", { count: "exact", head: true });
+
+            setTotalCount(count || 0);
+
+            // Calculate range for pagination
+            const from = (currentPage - 1) * ITEMS_PER_PAGE;
+            const to = from + ITEMS_PER_PAGE - 1;
 
             const { data, error } = await supabase
                 .from("prompts")
@@ -57,28 +72,32 @@ export default function PromptsPage() {
                     category:categories!category_id(name),
                     ai_model:ai_models!model_id(name)
                 `)
-                .order("created_at", { ascending: false });
+                .order("created_at", { ascending: false })
+                .range(from, to);
 
             if (error) {
-                // Error handled in UI
+                setError("Failed to load prompts");
             } else {
                 setPrompts((data || []) as unknown as Prompt[]);
             }
         } catch (err) {
+            setError("An unexpected error occurred");
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Failsafe: Ensure loading stops after 5 seconds for page
+    // Failsafe: Ensure loading stops after 5 seconds
     useEffect(() => {
         const timer = setTimeout(() => {
             if (isLoading) {
                 setIsLoading(false);
             }
-        }, 50000); // 50s for prompts might be better if DB is slow, but usually 5-10s is enough
+        }, 5000);
         return () => clearTimeout(timer);
     }, [isLoading]);
+
+    const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
     const handleStatusChange = async (promptId: string, newStatus: string) => {
         const supabase = createClient();
@@ -156,7 +175,7 @@ export default function PromptsPage() {
             <header className={styles.header}>
                 <div className={styles.headerLeft}>
                     <h1>Prompts</h1>
-                    <span className={styles.count}>{prompts.length} total</span>
+                    <span className={styles.count}>{totalCount} total</span>
                 </div>
                 <Link href="/admin/prompts/new" className={styles.addBtn}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -343,6 +362,29 @@ export default function PromptsPage() {
                             ))}
                         </tbody>
                     </table>
+                </div>
+            )}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div className={styles.pagination}>
+                    <button
+                        className={styles.pageBtn}
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                    >
+                        ← Previous
+                    </button>
+                    <div className={styles.pageInfo}>
+                        Page {currentPage} of {totalPages}
+                    </div>
+                    <button
+                        className={styles.pageBtn}
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                    >
+                        Next →
+                    </button>
                 </div>
             )}
         </div>

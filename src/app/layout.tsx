@@ -288,7 +288,9 @@ export const metadata: Metadata = {
     google: "vG1G-your-actual-verification-code",
   },
   icons: {
-    icon: "/icon.svg",
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
     apple: "/apple-touch-icon.png",
   },
 };
@@ -364,6 +366,7 @@ const organizationSchema = {
 };
 
 import AIBots from "@/components/AIBots";
+import DevToolsProtection from "@/components/DevToolsProtection";
 
 export default function RootLayout({
   children,
@@ -379,6 +382,7 @@ export default function RootLayout({
       </head>
       <body>
         <AuthProvider>
+          <DevToolsProtection />
           {children}
           <AIBots />
         </AuthProvider>

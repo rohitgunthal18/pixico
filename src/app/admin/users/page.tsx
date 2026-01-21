@@ -14,6 +14,8 @@ interface User {
     created_at: string;
 }
 
+const ITEMS_PER_PAGE = 20;
+
 export default function UsersPage() {
     const [users, setUsers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -21,19 +23,47 @@ export default function UsersPage() {
     const [success, setSuccess] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
 
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
+
     useEffect(() => {
         fetchUsers();
-    }, []);
+    }, [currentPage]);
+
+    // Failsafe: Ensure loading stops after 5 seconds
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (isLoading) {
+                setIsLoading(false);
+            }
+        }, 5000);
+        return () => clearTimeout(timer);
+    }, [isLoading]);
+
+    const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
     const fetchUsers = async () => {
         setIsLoading(true);
         const supabase = createClient();
 
         try {
+            // Get total count first
+            const { count } = await supabase
+                .from("profiles")
+                .select("*", { count: "exact", head: true });
+
+            setTotalCount(count || 0);
+
+            // Calculate range for pagination
+            const from = (currentPage - 1) * ITEMS_PER_PAGE;
+            const to = from + ITEMS_PER_PAGE - 1;
+
             const { data, error: fetchError } = await supabase
                 .from("profiles")
                 .select("*")
-                .order("created_at", { ascending: false });
+                .order("created_at", { ascending: false })
+                .range(from, to);
 
             if (fetchError) throw fetchError;
             setUsers(data || []);
@@ -94,12 +124,12 @@ export default function UsersPage() {
                     </div>
                     <div className={styles.headerStats}>
                         <div className={styles.stat}>
-                            <span className={styles.statValue}>{users.length}</span>
+                            <span className={styles.statValue}>{totalCount}</span>
                             <span className={styles.statLabel}>Total Users</span>
                         </div>
                         <div className={styles.stat}>
                             <span className={styles.statValue}>{users.filter(u => u.role === "admin").length}</span>
-                            <span className={styles.statLabel}>Admins</span>
+                            <span className={styles.statLabel}>Admins (this page)</span>
                         </div>
                     </div>
                 </div>
@@ -183,6 +213,29 @@ export default function UsersPage() {
             {filteredUsers.length === 0 && (
                 <div className={styles.emptyState}>
                     <p>No users found</p>
+                </div>
+            )}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div className={styles.pagination}>
+                    <button
+                        className={styles.pageBtn}
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                    >
+                        ← Previous
+                    </button>
+                    <div className={styles.pageInfo}>
+                        Page {currentPage} of {totalPages}
+                    </div>
+                    <button
+                        className={styles.pageBtn}
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                    >
+                        Next →
+                    </button>
                 </div>
             )}
         </div>

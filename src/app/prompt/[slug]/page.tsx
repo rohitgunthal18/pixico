@@ -156,6 +156,15 @@ export default async function Page({ params }: Props) {
         <>
             <JsonLd key="breadcrumb-schema" data={breadcrumbSchema} />
             <JsonLd key="prompt-schema" data={jsonLd} />
+            {/* Preload LCP image by rendering in server component */}
+            {prompt?.image_url && (
+                <link
+                    rel="preload"
+                    as="image"
+                    href={`/_next/image?url=${encodeURIComponent(prompt.image_url)}&w=640&q=75`}
+                    fetchPriority="high"
+                />
+            )}
             <PromptClient
                 initialPrompt={prompt as any}
                 initialRelatedPrompts={relatedPrompts || []}

@@ -206,7 +206,7 @@
 
 .excerpt {
     font-size: 0.75rem;
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 0.8);
     margin: 0;
     line-height: 1.4;
     display: -webkit-box;

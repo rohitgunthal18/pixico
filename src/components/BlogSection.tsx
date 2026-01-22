@@ -160,7 +160,7 @@ export default function BlogSection({ initialBlogs }: BlogSectionProps) {
                                         <p className={styles.excerpt}>{blog.excerpt}</p>
                                     )}
                                     <div className={styles.cardMeta}>
-                                        <span className={styles.date}>{formatDate(blog.created_at)}</span>
+                                        <span className={styles.date} suppressHydrationWarning>{formatDate(blog.created_at)}</span>
                                         <span className={styles.views}>
                                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                 <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" />

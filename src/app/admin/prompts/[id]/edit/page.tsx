@@ -157,7 +157,7 @@ export default function EditPromptPage() {
                 .eq("prompt_id", promptId);
 
             if (promptCats && promptCats.length > 0) {
-                setSelectedCategories(promptCats.map(pc => pc.category_id));
+                setSelectedCategories(promptCats.map((pc: any) => pc.category_id));
             } else if (prompt.category_id) {
                 setSelectedCategories([prompt.category_id]);
             }
@@ -169,7 +169,7 @@ export default function EditPromptPage() {
                 .eq("prompt_id", promptId);
 
             if (promptTags) {
-                setSelectedTags(promptTags.map(pt => pt.tag_id));
+                setSelectedTags(promptTags.map((pt: any) => pt.tag_id));
             }
 
             setIsLoading(false);

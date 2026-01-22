@@ -4,35 +4,38 @@ import { useEffect } from "react";
 
 export default function DevToolsProtection() {
     useEffect(() => {
-        // Copyright notice in console
-        const copyrightStyle = "color: #a855f7; font-size: 16px; font-weight: bold;";
-        const warningStyle = "color: #ef4444; font-size: 14px; font-weight: bold;";
-        const infoStyle = "color: #60a5fa; font-size: 12px;";
+        // Use requestIdleCallback to defer non-critical console styling
+        const setupProtection = () => {
+            // Copyright notice in console
+            const copyrightStyle = "color: #a855f7; font-size: 16px; font-weight: bold;";
+            const warningStyle = "color: #ef4444; font-size: 14px; font-weight: bold;";
+            const infoStyle = "color: #60a5fa; font-size: 12px;";
 
-        console.clear();
-        console.log("%c🚫 STOP!", "color: #ef4444; font-size: 40px; font-weight: bold;");
-        console.log("%c⚠️ This is a browser feature intended for developers.", warningStyle);
-        console.log("%c", "padding: 10px;");
-        console.log("%c╔══════════════════════════════════════════════════════════════╗", copyrightStyle);
-        console.log("%c║                    ⚠️ COPYRIGHT NOTICE ⚠️                     ║", copyrightStyle);
-        console.log("%c╠══════════════════════════════════════════════════════════════╣", copyrightStyle);
-        console.log("%c║  This website and all its contents are protected by          ║", copyrightStyle);
-        console.log("%c║  copyright law. Unauthorized copying, modification,          ║", copyrightStyle);
-        console.log("%c║  distribution, or use of any content, code, or resources     ║", copyrightStyle);
-        console.log("%c║  from this website is strictly prohibited.                   ║", copyrightStyle);
-        console.log("%c╠══════════════════════════════════════════════════════════════╣", copyrightStyle);
-        console.log("%c║  👨‍💻 Developer: Rohit Gunthal                                 ║", copyrightStyle);
-        console.log("%c║  📧 Contact: rohitgunthal1819@gmail.com                       ║", copyrightStyle);
-        console.log("%c║  🌐 Website: Pixico - AI Prompt Library                       ║", copyrightStyle);
-        console.log("%c╠══════════════════════════════════════════════════════════════╣", copyrightStyle);
-        console.log("%c║  All code, designs, images, and intellectual property        ║", copyrightStyle);
-        console.log("%c║  belong exclusively to Rohit Gunthal.                        ║", copyrightStyle);
-        console.log("%c║                                                              ║", copyrightStyle);
-        console.log("%c║  © 2024-2025 Pixico. All Rights Reserved.                    ║", copyrightStyle);
-        console.log("%c╚══════════════════════════════════════════════════════════════╝", copyrightStyle);
-        console.log("%c", "padding: 10px;");
-        console.log("%cIf you're a developer interested in working together, please contact:", infoStyle);
-        console.log("%crohitgunthal1819@gmail.com", "color: #22c55e; font-size: 14px; font-weight: bold;");
+            // Skip console.clear() in production to avoid clearing useful debugging info
+            console.log("%c🚫 STOP!", "color: #ef4444; font-size: 40px; font-weight: bold;");
+            console.log("%c⚠️ This is a browser feature intended for developers.", warningStyle);
+            console.log("%c", "padding: 10px;");
+            console.log("%c╔══════════════════════════════════════════════════════════════╗", copyrightStyle);
+            console.log("%c║                    ⚠️ COPYRIGHT NOTICE ⚠️                     ║", copyrightStyle);
+            console.log("%c╠══════════════════════════════════════════════════════════════╣", copyrightStyle);
+            console.log("%c║  This website and all its contents are protected by          ║", copyrightStyle);
+            console.log("%c║  copyright law. Unauthorized copying, modification,          ║", copyrightStyle);
+            console.log("%c║  distribution, or use of any content, code, or resources     ║", copyrightStyle);
+            console.log("%c║  from this website is strictly prohibited.                   ║", copyrightStyle);
+            console.log("%c╠══════════════════════════════════════════════════════════════╣", copyrightStyle);
+            console.log("%c║  👨‍💻 Developer: Rohit Gunthal                                 ║", copyrightStyle);
+            console.log("%c║  📧 Contact: rohitgunthal1819@gmail.com                       ║", copyrightStyle);
+            console.log("%c║  🌐 Website: Pixico - AI Prompt Library                       ║", copyrightStyle);
+            console.log("%c╠══════════════════════════════════════════════════════════════╣", copyrightStyle);
+            console.log("%c║  All code, designs, images, and intellectual property        ║", copyrightStyle);
+            console.log("%c║  belong exclusively to Rohit Gunthal.                        ║", copyrightStyle);
+            console.log("%c║                                                              ║", copyrightStyle);
+            console.log("%c║  © 2024-2025 Pixico. All Rights Reserved.                    ║", copyrightStyle);
+            console.log("%c╚══════════════════════════════════════════════════════════════╝", copyrightStyle);
+            console.log("%c", "padding: 10px;");
+            console.log("%cIf you're a developer interested in working together, please contact:", infoStyle);
+            console.log("%crohitgunthal1819@gmail.com", "color: #22c55e; font-size: 14px; font-weight: bold;");
+        };
 
         // Disable right-click context menu
         const handleContextMenu = (e: MouseEvent) => {
@@ -74,9 +77,17 @@ export default function DevToolsProtection() {
             }
         };
 
-        // Add event listeners
+        // Add event listeners immediately (critical for protection)
         document.addEventListener("contextmenu", handleContextMenu);
         document.addEventListener("keydown", handleKeyDown);
+
+        // Defer console styling until browser is idle
+        if ('requestIdleCallback' in window) {
+            (window as any).requestIdleCallback(setupProtection, { timeout: 2000 });
+        } else {
+            // Fallback for Safari
+            setTimeout(setupProtection, 100);
+        }
 
         // Cleanup on unmount
         return () => {

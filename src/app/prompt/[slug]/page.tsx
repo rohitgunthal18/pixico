@@ -69,7 +69,7 @@ export default async function Page({ params }: Props) {
     }
 
     // Now fetch all remaining data in parallel (including category-specific related prompts)
-    const [relatedRes, headerCatsRes, footerCatsRes] = await Promise.all([
+    const [relatedRes, headerCatsRes, footerCatsRes, showcaseCatsRes] = await Promise.all([
         // Fetch related prompts by category if available, otherwise random
         prompt.category_id
             ? supabase
@@ -93,11 +93,24 @@ export default async function Page({ params }: Props) {
         supabase
             .from("categories")
             .select("id, name, slug")
+            .order("sort_order"),
+        supabase
+            .from("categories")
+            .select(`
+                id, name, slug, description, image_url,
+                prompts:prompts!category_id(count)
+            `)
+            .eq("show_in_showcase", true)
             .order("sort_order")
+            .limit(6)
     ]);
 
     const headerCategories = (headerCatsRes.data || []) as any[];
     const footerCategories = (footerCatsRes.data || []) as any[];
+    const showcaseCategories = (showcaseCatsRes.data || []).map((cat: any) => ({
+        ...cat,
+        prompt_count: (cat as any).prompts?.[0]?.count || 0
+    }));
     const relatedPrompts = relatedRes.data || [];
 
     // Calculate rating from engagement metrics
@@ -145,6 +158,7 @@ export default async function Page({ params }: Props) {
                 initialRelatedPrompts={relatedPrompts || []}
                 headerCategories={headerCategories}
                 footerCategories={footerCategories}
+                showcaseCategories={showcaseCategories}
             />
         </>
     );

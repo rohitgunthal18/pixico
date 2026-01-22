@@ -52,31 +52,38 @@ export default function CategoryShowcase({ initialCategories }: CategoryShowcase
     const fetchCategories = async () => {
         const supabase = createClient();
         try {
+            // Optimized: Single query with aggregated counts (fixes N+1 problem)
             const { data, error } = await supabase
                 .from("categories")
-                .select("id, name, slug, description, image_url")
+                .select(`
+                    id, name, slug, description, image_url,
+                    prompts:prompts!category_id(count)
+                `)
                 .eq("show_in_showcase", true)
                 .order("sort_order")
                 .limit(6);
 
-            if (error) throw error;
+            if (error) {
+                console.error("Supabase error fetching showcase categories:", {
+                    message: error.message,
+                    details: error.details,
+                    hint: error.hint,
+                    code: error.code
+                });
+                throw error;
+            }
 
-            // Optimized: Get all counts in one go if possible, or keep as is if small
-            // For now, let's keep the logic but wrap it in a single try/catch
-            const categoriesWithCounts = await Promise.all(
-                (data || []).map(async (cat) => {
-                    const { count } = await supabase
-                        .from("prompts")
-                        .select("*", { count: "exact", head: true })
-                        .eq("category_id", cat.id)
-                        .eq("status", "published");
-                    return { ...cat, prompt_count: count || 0 };
-                })
-            );
+            if (!data) return;
 
-            setCategories(categoriesWithCounts);
-        } catch (err) {
-            console.error("Error fetching showcase categories:", err);
+            // Transform to extract counts from nested response
+            const categoriesWithCounts = data.map((cat: any) => ({
+                ...cat,
+                prompt_count: cat.prompts?.[0]?.count || 0
+            }));
+
+            setCategories(categoriesWithCounts as any);
+        } catch (err: any) {
+            console.error("Unexpected error fetching showcase categories:", err.message || err);
         } finally {
             setIsLoading(false);
         }

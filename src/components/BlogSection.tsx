@@ -31,14 +31,21 @@ function formatDate(dateString: string): string {
     });
 }
 
-export default function BlogSection() {
-    const [blogs, setBlogs] = useState<Blog[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+interface BlogSectionProps {
+    initialBlogs?: Blog[];
+}
+
+export default function BlogSection({ initialBlogs }: BlogSectionProps) {
+    const [blogs, setBlogs] = useState<Blog[]>(initialBlogs || []);
+    const [isLoading, setIsLoading] = useState(!initialBlogs);
     const scrollRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        fetchBlogs();
-    }, []);
+        // Skip fetch if we have initial data from server
+        if (!initialBlogs) {
+            fetchBlogs();
+        }
+    }, [initialBlogs]);
 
     const fetchBlogs = async () => {
         const supabase = createClient();

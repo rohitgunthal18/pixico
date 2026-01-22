@@ -365,6 +365,8 @@ const organizationSchema = {
   }
 };
 
+// AIBots and DevToolsProtection are client components ('use client') 
+// They're loaded on the client side and don't block SSR
 import AIBots from "@/components/AIBots";
 import DevToolsProtection from "@/components/DevToolsProtection";
 

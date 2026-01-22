@@ -55,7 +55,7 @@ export default function AdminHomePage() {
                 supabase.from("contact_queries").select("id, name, email, subject, status, created_at").order("created_at", { ascending: false }).limit(5),
             ]);
 
-            const totalViews = viewsData.data?.reduce((sum, p) => sum + (p.view_count || 0), 0) || 0;
+            const totalViews = viewsData.data?.reduce((sum: number, p: any) => sum + (p.view_count || 0), 0) || 0;
 
             setStats({
                 totalUsers: usersRes.count || 0,

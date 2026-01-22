@@ -23,7 +23,8 @@ export default async function Home() {
     footerCatsRes,
     showcaseCatsRes,
     featuredRes,
-    trendingRes
+    trendingRes,
+    blogsRes
   ] = await Promise.all([
     supabase
       .from("categories")
@@ -41,7 +42,7 @@ export default async function Home() {
       .from("categories")
       .select(`
         id, name, slug, description, image_url,
-        prompts(count)
+        prompts:prompts!category_id(count)
       `)
       .eq("show_in_showcase", true)
       .order("sort_order")
@@ -65,7 +66,17 @@ export default async function Home() {
       `)
       .eq("status", "published")
       .order("view_count", { ascending: false })
-      .limit(10)
+      .limit(10),
+    // Fetch blogs server-side for faster LCP
+    supabase
+      .from("blogs")
+      .select(`
+        id, title, slug, excerpt, featured_image, view_count, created_at,
+        category:categories!category_id(name, slug)
+      `)
+      .eq("status", "published")
+      .order("view_count", { ascending: false })
+      .limit(6)
   ]);
 
   const headerCategories = (headerCatsRes.data || []) as any[];
@@ -100,7 +111,7 @@ export default async function Home() {
           sectionType="trending"
           initialPrompts={trendingRes.data || []}
         />
-        <BlogSection />
+        <BlogSection initialBlogs={blogsRes.data as any || []} />
       </main>
       <Footer initialCategories={footerCategories} />
     </>

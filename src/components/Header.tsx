@@ -3,11 +3,17 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { createClient } from "@/lib/supabase/client";
-import AuthModal from "./AuthModal";
 import styles from "./Header.module.css";
+
+// Dynamic import AuthModal - reduces initial bundle by ~30KB
+const AuthModal = dynamic(() => import("./AuthModal"), {
+    ssr: false,
+    loading: () => null
+});
 
 interface Category {
     id: string;
@@ -135,8 +141,8 @@ export default function Header({ initialCategories }: HeaderProps) {
         ]);
 
         const results: SearchResult[] = [
-            ...(promptsRes.data || []).map(p => ({ ...p, type: "prompt" as const })),
-            ...(blogsRes.data || []).map(b => ({ id: b.id, title: b.title, slug: b.slug, type: "blog" as const, image_url: b.featured_image }))
+            ...(promptsRes.data || []).map((p: any) => ({ ...p, type: "prompt" as const })),
+            ...(blogsRes.data || []).map((b: any) => ({ id: b.id, title: b.title, slug: b.slug, type: "blog" as const, image_url: b.featured_image }))
         ];
 
         setSearchResults(results);

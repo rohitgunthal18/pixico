@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode, useCallback, useMemo } from "react";
+import { createContext, useContext, useEffect, useState, useRef, ReactNode, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { User, Session } from "@supabase/supabase-js";
+import type { User, Session, AuthChangeEvent } from "@supabase/supabase-js";
 
 interface Profile {
     id: string;
@@ -46,6 +46,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [session, setSession] = useState<Session | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
+    // Cache to prevent redundant profile fetches on TOKEN_REFRESHED events
+    const lastFetchedUserId = useRef<string | null>(null);
+
     const fetchProfile = async (userId: string) => {
         const { data, error } = await supabase
             .from("profiles")
@@ -63,16 +66,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (user) {
             const newProfile = await fetchProfile(user.id);
             setProfile(newProfile);
+            lastFetchedUserId.current = user.id;
         }
     };
 
     useEffect(() => {
         // Get initial session
-        supabase.auth.getSession().then(({ data: { session } }) => {
+        supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
             setSession(session);
             setUser(session?.user ?? null);
             if (session?.user) {
-                fetchProfile(session.user.id).then(setProfile);
+                fetchProfile(session.user.id).then((newProfile) => {
+                    setProfile(newProfile);
+                    lastFetchedUserId.current = session.user.id;
+                });
             }
             setIsLoading(false);
         });
@@ -80,15 +87,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Listen for auth changes
         const {
             data: { subscription },
-        } = supabase.auth.onAuthStateChange(async (event, session) => {
+        } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
             setSession(session);
             setUser(session?.user ?? null);
 
             if (session?.user) {
-                const newProfile = await fetchProfile(session.user.id);
-                setProfile(newProfile);
+                // Only fetch profile if user changed (prevents redundant fetches on TOKEN_REFRESHED)
+                if (lastFetchedUserId.current !== session.user.id) {
+                    const newProfile = await fetchProfile(session.user.id);
+                    setProfile(newProfile);
+                    lastFetchedUserId.current = session.user.id;
+                }
             } else {
                 setProfile(null);
+                lastFetchedUserId.current = null;
             }
 
             setIsLoading(false);
@@ -158,21 +170,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const updatePassword = useCallback(async (newPassword: string) => {
         try {
-            console.log("AuthContext: Starting password update...");
             const { data: { session: currentSession } } = await supabase.auth.getSession();
 
             if (!currentSession) {
-                console.warn("AuthContext: No active session found for password update.");
                 return { error: new Error("Session expired. Please verify your OTP code again.") };
             }
 
-            console.log("AuthContext: Session found, calling supabase.auth.updateUser...");
-
             // Create a timeout promise that assumes success after 3 seconds
             // Since the database is confirmed to update successfully even when the API hangs
-            const timeoutSuccess = new Promise<{ data: any, error: null }>((resolve) => {
+            const timeoutSuccess = new Promise<{ data: { user: User | null }, error: null }>((resolve) => {
                 setTimeout(() => {
-                    console.log("AuthContext: Password update timeout reached - assuming success (database updates confirmed)");
                     resolve({ data: { user: currentSession.user }, error: null });
                 }, 3000);
             });
@@ -182,14 +189,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const { data, error } = await Promise.race([updatePromise, timeoutSuccess]);
 
             if (error) {
-                console.error("AuthContext: supabase.auth.updateUser error:", error);
+                console.error("Password update error:", error);
                 return { error: error as Error };
             } else {
-                console.log("AuthContext: Password update successful.", data);
                 return { error: null };
             }
         } catch (err) {
-            console.error("AuthContext: Unexpected error in updatePassword:", err);
+            console.error("Password update failed:", err);
             return { error: err instanceof Error ? err : new Error("Failed to update password") };
         }
     }, []);

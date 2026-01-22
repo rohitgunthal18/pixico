@@ -52,13 +52,15 @@ interface PromptClientProps {
     initialRelatedPrompts: RelatedPrompt[];
     headerCategories?: any[];
     footerCategories?: any[];
+    showcaseCategories?: any[];
 }
 
 export default function PromptClient({
     initialPrompt,
     initialRelatedPrompts,
     headerCategories,
-    footerCategories
+    footerCategories,
+    showcaseCategories
 }: PromptClientProps) {
     const params = useParams();
     const router = useRouter();
@@ -469,7 +471,7 @@ export default function PromptClient({
                     </div>
                 </section>
 
-                <CategoryShowcase />
+                <CategoryShowcase initialCategories={showcaseCategories} />
             </main>
             <Footer initialCategories={footerCategories} />
 

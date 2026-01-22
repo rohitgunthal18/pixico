@@ -257,9 +257,7 @@ export default function AuthModal({ isOpen, onClose, contextMessage }: AuthModal
         setSuccess(null);
 
         try {
-            console.log("AuthModal: handleSetNewPassword triggered- email:", email);
             const { error } = await updatePassword(newPassword);
-            console.log("AuthModal: updatePassword result:", error ? error.message : "SUCCESS");
 
             if (error) {
                 setError(getErrorMessage(error.message));
@@ -269,15 +267,13 @@ export default function AuthModal({ isOpen, onClose, contextMessage }: AuthModal
                 setNewPassword("");
                 setConfirmNewPassword("");
                 setTimeout(() => {
-                    console.log("AuthModal: Closing after success...");
                     handleClose();
                 }, 3000);
             }
         } catch (err) {
-            console.error("AuthModal: Critical error in handleSetNewPassword:", err);
+            console.error("Password update failed:", err);
             setError("An unexpected error occurred. Please try again.");
         } finally {
-            console.log("AuthModal: Setting isLoading(false)");
             setIsLoading(false);
         }
     };

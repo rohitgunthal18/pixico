@@ -22,19 +22,35 @@ export default function AIBots() {
     const [isLoading, setIsLoading] = useState(false);
     const chatEndRef = useRef<HTMLDivElement>(null);
 
-    // Handle Visibility on Scroll
+    // Handle Visibility on Scroll with throttling for performance
     useEffect(() => {
+        let ticking = false;
+        let lastScrollY = 0;
+
         const handleScroll = () => {
-            // Show bots when scrolled down 300px (past hero)
-            if (window.scrollY > 300) {
-                setIsVisible(true);
-            } else {
-                setIsVisible(false);
-                setIsOpen(false); // Auto-close chat if they scroll back up
+            lastScrollY = window.scrollY;
+
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    // Show bots when scrolled down 300px (past hero)
+                    const shouldShow = lastScrollY > 300;
+
+                    // Only update state if value actually changed
+                    setIsVisible(prev => {
+                        if (prev !== shouldShow) {
+                            if (!shouldShow) setIsOpen(false); // Auto-close chat if they scroll back up
+                            return shouldShow;
+                        }
+                        return prev;
+                    });
+
+                    ticking = false;
+                });
+                ticking = true;
             }
         };
 
-        window.addEventListener("scroll", handleScroll);
+        window.addEventListener("scroll", handleScroll, { passive: true });
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 

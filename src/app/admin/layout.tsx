@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -94,7 +95,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     // Listen to auth state changes for sign out handling
     useEffect(() => {
         const { data: { subscription } } = supabase.current.auth.onAuthStateChange(
-            async (event, session) => {
+            async (event: AuthChangeEvent, session: Session | null) => {
                 if (event === 'SIGNED_OUT') {
                     // Clear cached auth state
                     authVerified.current = false;

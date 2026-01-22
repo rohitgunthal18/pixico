@@ -220,7 +220,7 @@ export default function PromptGrid({
             const { data: catData } = await categoryQuery.order("sort_order");
 
             if (catData && catData.length > 0) {
-                const catNames = ["All", ...catData.map(c => c.name).filter(n => n !== "All")];
+                const catNames = ["All", ...(catData as any[]).map((c: any) => c.name).filter((n: string) => n !== "All")];
                 setCategories(catNames);
             }
 
@@ -232,7 +232,7 @@ export default function PromptGrid({
                 .order("name");
 
             if (modelData && modelData.length > 0) {
-                const modelNames = ["All Models", ...modelData.map(m => m.name)];
+                const modelNames = ["All Models", ...(modelData as any[]).map((m: any) => m.name)];
                 setModels(modelNames);
             }
         };

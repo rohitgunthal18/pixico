@@ -13,6 +13,16 @@ interface TrendingPrompt {
     category: string;
 }
 
+interface SwipeableHeroCardsProps {
+    initialPrompts?: {
+        id: string;
+        title: string;
+        slug: string;
+        image_url: string;
+        category: { name: string } | null;
+    }[];
+}
+
 // Fallback images if database is empty
 const fallbackPrompts: TrendingPrompt[] = [
     { id: "f1", title: "Portrait", slug: "", image_url: "https://picsum.photos/seed/hp1/300/400", category: "Portrait" },
@@ -27,8 +37,24 @@ const fallbackPrompts: TrendingPrompt[] = [
     { id: "f10", title: "Retro", slug: "", image_url: "https://picsum.photos/seed/hp10/300/400", category: "Logos & Icons" },
 ];
 
-export default function SwipeableHeroCards() {
-    const [trendingPool, setTrendingPool] = useState<TrendingPrompt[]>(fallbackPrompts);
+// Format server-side data to match TrendingPrompt interface
+function formatInitialPrompts(prompts: SwipeableHeroCardsProps["initialPrompts"]): TrendingPrompt[] {
+    if (!prompts || prompts.length === 0) return [];
+    return prompts.map((p) => ({
+        id: p.id,
+        title: p.title,
+        slug: p.slug,
+        image_url: p.image_url || "https://picsum.photos/seed/default/300/400",
+        category: p.category?.name || "Uncategorized",
+    }));
+}
+
+export default function SwipeableHeroCards({ initialPrompts }: SwipeableHeroCardsProps) {
+    // Use server-side data if available, otherwise fallback
+    const formattedInitial = formatInitialPrompts(initialPrompts);
+    const [trendingPool, setTrendingPool] = useState<TrendingPrompt[]>(
+        formattedInitial.length > 0 ? formattedInitial : fallbackPrompts
+    );
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
     const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null);
@@ -53,8 +79,11 @@ export default function SwipeableHeroCards() {
         };
     }, []);
 
-    // Fetch trending prompts from database
+    // Fetch trending prompts from database ONLY if no initial data provided
     useEffect(() => {
+        // Skip client-side fetch if we have server-side data
+        if (initialPrompts && initialPrompts.length > 0) return;
+
         const fetchTrendingPrompts = async () => {
             const supabase = createClient();
 
@@ -107,7 +136,7 @@ export default function SwipeableHeroCards() {
         };
 
         fetchTrendingPrompts();
-    }, []);
+    }, [initialPrompts]);
 
     // Auto-swipe feature - swipe every 2 seconds when not paused
     useEffect(() => {

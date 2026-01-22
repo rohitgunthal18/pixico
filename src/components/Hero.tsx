@@ -13,6 +13,18 @@ import {
     AdobeIcon
 } from "./icons/PlatformIcons";
 
+interface HeroPrompt {
+    id: string;
+    title: string;
+    slug: string;
+    image_url: string;
+    category: { name: string } | null;
+}
+
+interface HeroProps {
+    initialHeroImages?: HeroPrompt[];
+}
+
 const PLATFORMS = [
     { name: "OpenAI", Icon: OpenAIIcon },
     { name: "Midjourney", Icon: MidjourneyIcon },
@@ -23,7 +35,7 @@ const PLATFORMS = [
     { name: "Adobe Firefly", Icon: AdobeIcon },
 ];
 
-export default function Hero() {
+export default function Hero({ initialHeroImages }: HeroProps) {
     return (
         <section className={styles.hero}>
             <div className={`container ${styles.container}`}>
@@ -74,7 +86,7 @@ export default function Hero() {
 
                 {/* Right: Prompt Preview Cards */}
                 <div className={styles.visualSide}>
-                    <SwipeableHeroCards />
+                    <SwipeableHeroCards initialPrompts={initialHeroImages} />
                 </div>
             </div>
         </section>

@@ -24,7 +24,8 @@ export default async function Home() {
     showcaseCatsRes,
     featuredRes,
     trendingRes,
-    blogsRes
+    blogsRes,
+    heroImagesRes
   ] = await Promise.all([
     supabase
       .from("categories")
@@ -76,7 +77,18 @@ export default async function Home() {
       `)
       .eq("status", "published")
       .order("view_count", { ascending: false })
-      .limit(6)
+      .limit(6),
+    // Fetch hero images server-side for LCP discoverability
+    supabase
+      .from("prompts")
+      .select(`
+        id, title, slug, image_url,
+        category:categories!category_id(name)
+      `)
+      .eq("status", "published")
+      .not("image_url", "is", null)
+      .order("view_count", { ascending: false })
+      .limit(10)
   ]);
 
   const headerCategories = (headerCatsRes.data || []) as any[];
@@ -92,7 +104,7 @@ export default async function Home() {
     <>
       <Header initialCategories={headerCategories} />
       <main>
-        <Hero />
+        <Hero initialHeroImages={heroImagesRes.data as any || []} />
         <PromptGrid
           id="featured-prompts"
           title="Featured Prompts"

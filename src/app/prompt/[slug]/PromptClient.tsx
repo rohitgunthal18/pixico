@@ -292,12 +292,14 @@ export default function PromptClient({
                         <div className={styles.imageCol}>
                             <div className={styles.imageBox}>
                                 <Image
-                                    src={prompt.image_url || "/placeholder-prompt.jpg"}
+                                    src={prompt.image_url || "https://picsum.photos/seed/prompt/600/800"}
                                     alt={prompt.image_alt || prompt.title}
                                     width={600}
                                     height={800}
                                     className={styles.image}
                                     priority
+                                    fetchPriority="high"
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 450px, 420px"
                                 />
                             </div>
                             <div className={styles.stats}>
@@ -455,11 +457,12 @@ export default function PromptClient({
                                         {relatedPrompts.map(p => (
                                             <Link key={p.id} href={`/prompt/${p.slug}`} className={styles.relatedCard}>
                                                 <Image
-                                                    src={p.image_url || "/placeholder-prompt.jpg"}
+                                                    src={p.image_url || "https://picsum.photos/seed/related/200/250"}
                                                     alt={p.title}
                                                     width={200}
                                                     height={250}
                                                     className={styles.relatedImg}
+                                                    sizes="(max-width: 768px) 50vw, 200px"
                                                 />
                                                 <span>{p.title}</span>
                                             </Link>

@@ -54,31 +54,30 @@ export default function PromptsPage() {
         try {
             const supabase = createClient();
 
-            // Get total count first
-            const { count } = await supabase
-                .from("prompts")
-                .select("*", { count: "exact", head: true });
-
-            setTotalCount(count || 0);
-
             // Calculate range for pagination
             const from = (currentPage - 1) * ITEMS_PER_PAGE;
             const to = from + ITEMS_PER_PAGE - 1;
 
-            const { data, error } = await supabase
-                .from("prompts")
-                .select(`
-                    id, title, slug, prompt_code, image_url, status, view_count, like_count, created_at,
-                    category:categories!category_id(name),
-                    ai_model:ai_models!model_id(name)
-                `)
-                .order("created_at", { ascending: false })
-                .range(from, to);
+            // Run count and data queries in PARALLEL for faster loading
+            const [countResult, dataResult] = await Promise.all([
+                supabase.from("prompts").select("*", { count: "exact", head: true }),
+                supabase
+                    .from("prompts")
+                    .select(`
+                        id, title, slug, prompt_code, image_url, status, view_count, like_count, created_at,
+                        category:categories!category_id(name),
+                        ai_model:ai_models!model_id(name)
+                    `)
+                    .order("created_at", { ascending: false })
+                    .range(from, to)
+            ]);
 
-            if (error) {
+            setTotalCount(countResult.count || 0);
+
+            if (dataResult.error) {
                 setError("Failed to load prompts");
             } else {
-                setPrompts((data || []) as unknown as Prompt[]);
+                setPrompts((dataResult.data || []) as unknown as Prompt[]);
             }
         } catch (err) {
             setError("An unexpected error occurred");

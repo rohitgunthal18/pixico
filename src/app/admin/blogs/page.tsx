@@ -62,30 +62,29 @@ export default function BlogsPage() {
         try {
             const supabase = createClient();
 
-            // Get total count first
-            const { count } = await supabase
-                .from("blogs")
-                .select("*", { count: "exact", head: true });
-
-            setTotalCount(count || 0);
-
             // Calculate range for pagination
             const from = (currentPage - 1) * ITEMS_PER_PAGE;
             const to = from + ITEMS_PER_PAGE - 1;
 
-            const { data, error } = await supabase
-                .from("blogs")
-                .select(`
-                    id, title, slug, featured_image, status, view_count, created_at,
-                    category:categories!category_id(name)
-                `)
-                .order("created_at", { ascending: false })
-                .range(from, to);
+            // Run count and data queries in PARALLEL for faster loading
+            const [countResult, dataResult] = await Promise.all([
+                supabase.from("blogs").select("*", { count: "exact", head: true }),
+                supabase
+                    .from("blogs")
+                    .select(`
+                        id, title, slug, featured_image, status, view_count, created_at,
+                        category:categories!category_id(name)
+                    `)
+                    .order("created_at", { ascending: false })
+                    .range(from, to)
+            ]);
 
-            if (error) {
+            setTotalCount(countResult.count || 0);
+
+            if (dataResult.error) {
                 setError("Failed to load blogs");
             } else {
-                setBlogs((data || []) as unknown as Blog[]);
+                setBlogs((dataResult.data || []) as unknown as Blog[]);
             }
         } catch (err) {
             setError("An unexpected error occurred");

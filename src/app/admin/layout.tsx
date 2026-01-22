@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -86,63 +86,119 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     const [isLoading, setIsLoading] = useState(true);
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
+    // Refs to prevent race conditions and cache auth state
+    const authCheckInProgress = useRef(false);
+    const authVerified = useRef(false); // Cache successful auth to avoid re-checks
+    const supabase = useRef(createClient());
+
+    // Listen to auth state changes for sign out handling
+    useEffect(() => {
+        const { data: { subscription } } = supabase.current.auth.onAuthStateChange(
+            async (event, session) => {
+                if (event === 'SIGNED_OUT') {
+                    // Clear cached auth state
+                    authVerified.current = false;
+                    setIsAuthenticated(false);
+                    if (pathname !== '/admin' && pathname !== '/admin/login') {
+                        router.push('/admin/login');
+                    }
+                } else if (event === 'SIGNED_IN' && session && !authVerified.current) {
+                    // Only verify role if not already verified
+                    const { data: profile } = await supabase.current
+                        .from('profiles')
+                        .select('role')
+                        .eq('id', session.user.id)
+                        .single();
+
+                    const isAdmin = profile?.role === 'admin';
+                    authVerified.current = isAdmin;
+                    setIsAuthenticated(isAdmin);
+                    setIsLoading(false);
+                }
+            }
+        );
+
+        return () => subscription.unsubscribe();
+    }, [pathname, router]);
+
+    // Check auth ONCE on mount - not on every pathname change
     useEffect(() => {
         checkAuth();
-    }, [pathname]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Empty dependency array = runs once on mount
 
     const checkAuth = async () => {
-        // Skip auth check for login page and index (index handles its own redirect)
+        // Skip auth check for login page and index (they handle their own logic)
         if (pathname === "/admin" || pathname === "/admin/login") {
             setIsLoading(false);
-            setIsAuthenticated(false);
             return;
         }
 
-        const supabase = createClient();
+        // FAST PATH: If already verified as admin, skip all checks
+        if (authVerified.current) {
+            setIsAuthenticated(true);
+            setIsLoading(false);
+            return;
+        }
+
+        // Prevent concurrent auth checks (race condition fix)
+        if (authCheckInProgress.current) {
+            return;
+        }
+        authCheckInProgress.current = true;
 
         try {
             // Verify actual Supabase session
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await supabase.current.auth.getSession();
 
             if (session?.user) {
                 // Verify admin role in profiles table
-                const { data: profile } = await supabase
+                const { data: profile } = await supabase.current
                     .from("profiles")
                     .select("role")
                     .eq("id", session.user.id)
                     .single();
 
                 if (profile?.role === "admin") {
+                    authVerified.current = true; // Cache successful auth
                     setIsAuthenticated(true);
                     setIsLoading(false);
+                    authCheckInProgress.current = false;
                     return;
                 }
             }
 
-            // If we reach here, we are not authenticated or not an admin
-            // Clear any legacy session to be safe
+            // Not authenticated or not admin - redirect to login
             localStorage.removeItem("adminSession");
-            router.push("/admin");
+            setIsAuthenticated(false);
+            router.push("/admin/login");
         } catch (err) {
-            router.push("/admin");
+            console.error("Auth check error:", err);
+            setIsAuthenticated(false);
+            router.push("/admin/login");
         } finally {
             setIsLoading(false);
+            authCheckInProgress.current = false;
         }
     };
 
-    // Failsafe: Ensure loading stops after 3 seconds
+    // Failsafe: Longer timeout with proper handling (10s for slow connections)
     useEffect(() => {
         const timer = setTimeout(() => {
             if (isLoading) {
+                console.warn("Admin auth timeout - forcing render");
                 setIsLoading(false);
+                authCheckInProgress.current = false;
             }
-        }, 3000);
+        }, 10000);
         return () => clearTimeout(timer);
-    }, [isLoading]);
+    }, []);
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        authVerified.current = false; // Clear cached auth
         localStorage.removeItem("adminSession");
-        router.push("/admin");
+        await supabase.current.auth.signOut();
+        router.push("/admin/login");
     };
 
     // Show login page and index without layout
@@ -160,7 +216,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     }
 
     if (!isAuthenticated) {
-        return null;
+        // Show loading/redirect state instead of blank screen
+        return (
+            <div className={styles.loading}>
+                <div className={styles.spinner}></div>
+                <p>Redirecting to login...</p>
+            </div>
+        );
     }
 
     return (

@@ -44,13 +44,14 @@
     cursor: grabbing;
 }
 
-/* Card positioning (default desktop) */
+/* Card positioning (default desktop) - Using transform for GPU acceleration */
 .cardTop {
     left: var(--left-top);
     top: var(--top-top);
     z-index: 3;
     transform: rotate(var(--rotate-top)) scale(1);
     opacity: 1;
+    will-change: transform, opacity;
 }
 
 .cardMiddle {
@@ -60,6 +61,7 @@
     transform: rotate(var(--rotate-middle)) scale(1);
     opacity: 1;
     pointer-events: none;
+    will-change: transform, opacity;
 }
 
 .cardBottom {
@@ -69,6 +71,7 @@
     transform: rotate(var(--rotate-bottom)) scale(1);
     opacity: 1;
     pointer-events: none;
+    will-change: transform, opacity;
 }
 
 .cardHidden {
@@ -78,6 +81,7 @@
     transform: rotate(var(--rotate-bottom)) scale(0.95);
     opacity: 0;
     pointer-events: none;
+    will-change: transform, opacity;
 }
 
 .card:hover {

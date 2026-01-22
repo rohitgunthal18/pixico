@@ -257,20 +257,6 @@ export default function SwipeableHeroCards() {
 
     return (
         <>
-            {/* Preload all trending images for smooth performance */}
-            <div style={{ display: "none" }}>
-                {trendingPool.map((prompt, index) => (
-                    <Image
-                        key={`preload-${prompt.id}`}
-                        src={prompt.image_url}
-                        alt={prompt.title}
-                        width={300}
-                        height={400}
-                        priority={index < 4}
-                    />
-                ))}
-            </div>
-
             <div
                 className={styles.cardsContainer}
             >
@@ -342,7 +328,9 @@ export default function SwipeableHeroCards() {
                                 width={300}
                                 height={400}
                                 className={styles.cardImage}
-                                priority={index < 4} // Prioritize all 4 cards
+                                sizes="(max-width: 480px) 115px, (max-width: 768px) 160px, (max-width: 1024px) 180px, 220px"
+                                priority={index < 3}
+                                loading={index < 3 ? "eager" : "lazy"}
                             />
                             <div className={styles.cardOverlay}>
                                 <span className={styles.cardCategory}>{prompt.category}</span>

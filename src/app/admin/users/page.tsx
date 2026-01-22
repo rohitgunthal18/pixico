@@ -48,25 +48,24 @@ export default function UsersPage() {
         const supabase = createClient();
 
         try {
-            // Get total count first
-            const { count } = await supabase
-                .from("profiles")
-                .select("*", { count: "exact", head: true });
-
-            setTotalCount(count || 0);
-
             // Calculate range for pagination
             const from = (currentPage - 1) * ITEMS_PER_PAGE;
             const to = from + ITEMS_PER_PAGE - 1;
 
-            const { data, error: fetchError } = await supabase
-                .from("profiles")
-                .select("*")
-                .order("created_at", { ascending: false })
-                .range(from, to);
+            // Run count and data queries in PARALLEL for faster loading
+            const [countResult, dataResult] = await Promise.all([
+                supabase.from("profiles").select("*", { count: "exact", head: true }),
+                supabase
+                    .from("profiles")
+                    .select("*")
+                    .order("created_at", { ascending: false })
+                    .range(from, to)
+            ]);
 
-            if (fetchError) throw fetchError;
-            setUsers(data || []);
+            setTotalCount(countResult.count || 0);
+
+            if (dataResult.error) throw dataResult.error;
+            setUsers(dataResult.data || []);
         } catch (err) {
             setError("Failed to load users");
         } finally {

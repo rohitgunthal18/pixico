@@ -7,10 +7,10 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 const nextConfig: NextConfig = {
   images: {
-    deviceSizes: [320, 420, 640, 768, 1024, 1280],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256],
+    deviceSizes: [320, 375, 420, 540, 640, 768, 1024, 1280, 1536],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 86400,
+    minimumCacheTTL: 31536000,
     remotePatterns: [
       {
         protocol: "https",

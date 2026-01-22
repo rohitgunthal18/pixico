@@ -331,6 +331,7 @@ export default function SwipeableHeroCards() {
                                 sizes="(max-width: 480px) 115px, (max-width: 768px) 160px, (max-width: 1024px) 180px, 220px"
                                 priority={index < 3}
                                 loading={index < 3 ? "eager" : "lazy"}
+                                {...(index === 0 ? { fetchPriority: "high" } : {})}
                             />
                             <div className={styles.cardOverlay}>
                                 <span className={styles.cardCategory}>{prompt.category}</span>

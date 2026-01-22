@@ -20,6 +20,7 @@ export const metadata: Metadata = {
   },
   description:
     "Free Gemini prompt copy paste library with 1000+ trending AI photo prompts. Get instant access to couple prompts, saree prompts, retro styles for Google Gemini AI. Copy-paste and create stunning images now!",
+  themeColor: "#a855f7",
   keywords: [
     // Tier 1 - Core Explosive Growth (4000%+ increase)
     "gemini",

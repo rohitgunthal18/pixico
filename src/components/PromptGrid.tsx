@@ -421,6 +421,7 @@ export default function PromptGrid({
                                     className={styles.select}
                                     value={activeModel}
                                     onChange={(e) => setActiveModel(e.target.value)}
+                                    aria-label="Filter by AI model"
                                     suppressHydrationWarning
                                 >
                                     {models.map(model => (
@@ -437,6 +438,7 @@ export default function PromptGrid({
                                     className={styles.select}
                                     value={sortBy}
                                     onChange={(e) => setSortBy(e.target.value)}
+                                    aria-label="Sort prompts by"
                                     suppressHydrationWarning
                                 >
                                     <option value="trending">Trending</option>
@@ -466,8 +468,10 @@ export default function PromptGrid({
                                     width={400}
                                     height={500}
                                     className={styles.image}
-                                    sizes="(max-width: 600px) 45vw, (max-width: 900px) 30vw, (max-width: 1200px) 22vw, 300px"
-                                    loading={prompts.indexOf(prompt) < 8 ? "eager" : "lazy"}
+                                    sizes="(max-width: 600px) 48vw, (max-width: 900px) 30vw, (max-width: 1200px) 24vw, 300px"
+                                    loading={prompts.indexOf(prompt) < 4 ? "eager" : "lazy"}
+                                    priority={prompts.indexOf(prompt) < 4}
+                                    {...(prompts.indexOf(prompt) < 2 ? { fetchPriority: "high" } : {})}
                                 />
                                 <div className={styles.overlay}>
                                     {/* Title */}
